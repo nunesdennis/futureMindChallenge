@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block titulo %}{{ rec.id }}{% endblock %}
+
+{% block conteudo %}
+<style>
+  .voltar { font-size: .88rem; color: #0d3b6e; text-decoration: none; margin-bottom: 1rem; display: inline-block; }
+  .voltar:hover { text-decoration: underline; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media(max-width:720px){ .grid { grid-template-columns: 1fr; } }
+
+  .card { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
+  .card h3 { font-size: 1rem; color: #0d3b6e; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: .5rem; }
+  .campo-row { display: flex; justify-content: space-between; font-size: .88rem; margin-bottom: .6rem; }
+  .campo-row .label { color: #666; font-weight: 600; }
+  .campo-row .valor { text-align: right; }
+
+  .texto-box {
+    background: #f8f9fb;
+    border-radius: 6px;
+    padding: 1rem;
+    font-size: .88rem;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+  .resumo-box {
+    background: #e8f0fe;
+    border-left: 4px solid #0d3b6e;
+    border-radius: 4px;
+    padding: .8rem 1rem;
+    font-size: .88rem;
+    line-height: 1.6;
+    color: #1a1a2e;
+    margin-bottom: 1rem;
+  }
+  .acoes-box {
+    background: #fff8e1;
+    border-left: 4px solid #fd7e14;
+    border-radius: 4px;
+    padding: .8rem 1rem;
+    font-size: .88rem;
+    line-height: 1.6;
+    color: #5a3e00;
+  }
+  .critica-box {
+    background: #fde8e8;
+    border-left: 4px solid #6f0000;
+    border-radius: 4px;
+    padding: .8rem 1rem;
+    font-size: .88rem;
+    color: #6f0000;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: .28em .65em;
+    border-radius: 12px;
+    font-size: .8rem;
+    font-weight: 600;
+    color: #fff;
+  }
+
+  .status-form { display: flex; gap: .5rem; align-items: center; margin-top: 1rem; }
+  .status-form select { padding: .4rem .7rem; border: 1px solid #ccc; border-radius: 5px; font-size: .88rem; }
+</style>
+
+<a href="/" class="voltar">← Voltar para a lista</a>
+
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+  <div>
+    <h2 style="font-size:1.1rem; color:#0d3b6e;">{{ rec.id }}</h2>
+    <span style="font-size:.82rem; color:#888;">Registrada em {{ rec.data_reclamacao.strftime('%d/%m/%Y') if rec.data_reclamacao else '—' }}</span>
+  </div>
+  {% if rec.urgencia == "Crítica" %}
+    <div class="critica-box" style="margin:0; font-size:.9rem;">⚠️ URGÊNCIA CRÍTICA — Ação imediata requerida</div>
+  {% endif %}
+</div>
+
+<div class="grid">
+  <!-- Coluna esquerda: dados da reclamação -->
+  <div>
+    <div class="card" style="margin-bottom:1.5rem;">
+      <h3>Dados da Reclamação</h3>
+      <div class="campo-row"><span class="label">Canal</span><span class="valor">{{ rec.canal }}</span></div>
+      <div class="campo-row"><span class="label">Produto</span><span class="valor">{{ rec.produto or '—' }}</span></div>
+      <div class="campo-row">
+        <span class="label">Status</span>
+        <span class="valor">
+          {% set stcls = {"Aberta":"#0d6efd","Em análise":"#fd7e14","Resolvida":"#28a745"} %}
+          <span class="badge" style="background:{{ stcls.get(rec.status,'#6c757d') }}">{{ rec.status }}</span>
+        </span>
+      </div>
+
+      <form method="post" action="/reclamacao/{{ rec.id }}/status" class="status-form">
+        <select name="status">
+          <option value="Aberta" {% if rec.status == "Aberta" %}selected{% endif %}>Aberta</option>
+          <option value="Em análise" {% if rec.status == "Em análise" %}selected{% endif %}>Em análise</option>
+          <option value="Resolvida" {% if rec.status == "Resolvida" %}selected{% endif %}>Resolvida</option>
+        </select>
+        <button type="submit" class="btn btn-secondary btn-sm">Atualizar status</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h3>Texto Original</h3>
+      <div class="texto-box">{{ rec.texto_reclamacao }}</div>
+    </div>
+  </div>
+
+  <!-- Coluna direita: classificação do agente -->
+  <div>
+    <div class="card">
+      <h3>🤖 Classificação do Agente (POL-SAC-001)</h3>
+
+      {% if rec.urgencia %}
+        {% set ucls = {"Baixa":"#28a745","Média":"#fd7e14","Alta":"#dc3545","Crítica":"#6f0000"} %}
+        {% set scls = {"Positivo":"#28a745","Neutro":"#6c757d","Negativo":"#fd7e14","Crítico":"#6f0000"} %}
+
+        <div class="campo-row">
+          <span class="label">Categoria</span>
+          <span class="valor"><strong>{{ rec.categoria or '—' }}</strong></span>
+        </div>
+        <div class="campo-row">
+          <span class="label">Produto identificado</span>
+          <span class="valor">{{ rec.produto or 'Não identificado' }}</span>
+        </div>
+        <div class="campo-row">
+          <span class="label">Sentimento</span>
+          <span class="valor">
+            <span class="badge" style="background:{{ scls.get(rec.sentimento,'#6c757d') }}">{{ rec.sentimento or '—' }}</span>
+          </span>
+        </div>
+        <div class="campo-row">
+          <span class="label">Urgência</span>
+          <span class="valor">
+            <span class="badge" style="background:{{ ucls.get(rec.urgencia,'#6c757d') }}">{{ rec.urgencia }}</span>
+          </span>
+        </div>
+        <div class="campo-row">
+          <span class="label">Prazo de resposta</span>
+          <span class="valor" style="font-weight:600; color:#dc3545;">{{ rec.prazo_resposta or '—' }}</span>
+        </div>
+        <div class="campo-row">
+          <span class="label">Responsável</span>
+          <span class="valor">{{ rec.responsavel or '—' }}</span>
+        </div>
+
+        <div style="margin-top:1rem;">
+          <p style="font-size:.82rem; font-weight:600; color:#444; margin-bottom:.4rem;">Resumo padronizado (LGPD)</p>
+          <div class="resumo-box">{{ rec.resumo or '—' }}</div>
+        </div>
+
+        <div>
+          <p style="font-size:.82rem; font-weight:600; color:#444; margin-bottom:.4rem;">Ações imediatas recomendadas</p>
+          <div class="acoes-box">{{ rec.acoes_imediatas or '—' }}</div>
+        </div>
+
+      {% else %}
+        <p style="color:#888; font-size:.88rem;">Reclamação ainda não classificada pelo agente.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

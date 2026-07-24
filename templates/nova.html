@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block titulo %}Nova Reclamação{% endblock %}
+
+{% block conteudo %}
+<style>
+  .card { background: #fff; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 6px rgba(0,0,0,.1); max-width: 760px; }
+  .card h2 { font-size: 1.15rem; color: #0d3b6e; margin-bottom: 1.5rem; }
+  .campo { margin-bottom: 1.2rem; }
+  .campo label { display: block; font-size: .88rem; font-weight: 600; color: #444; margin-bottom: .4rem; }
+  .campo select, .campo textarea {
+    width: 100%;
+    padding: .55rem .8rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: .92rem;
+    font-family: inherit;
+    transition: border-color .2s;
+  }
+  .campo select:focus, .campo textarea:focus { outline: none; border-color: #0d3b6e; box-shadow: 0 0 0 3px rgba(13,59,110,.1); }
+  .campo textarea { resize: vertical; min-height: 140px; }
+  .campo .hint { font-size: .78rem; color: #888; margin-top: .3rem; }
+  .acoes { display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center; }
+  .aviso-ia {
+    background: #e8f0fe;
+    border-left: 4px solid #0d3b6e;
+    border-radius: 4px;
+    padding: .7rem 1rem;
+    font-size: .84rem;
+    color: #0d3b6e;
+    margin-bottom: 1.5rem;
+  }
+</style>
+
+<div class="card">
+  <h2>Nova Reclamação</h2>
+
+  <div class="aviso-ia">
+    🤖 O agente classificador analisará automaticamente o texto e aplicará as regras da <strong>POL-SAC-001</strong>
+    para determinar categoria, urgência, sentimento e ações imediatas.
+  </div>
+
+  <form method="post" action="/nova">
+    <div class="campo">
+      <label for="canal">Canal de origem <span style="color:red">*</span></label>
+      <select name="canal" id="canal" required>
+        <option value="">Selecione o canal</option>
+        {% for c in canais %}
+          <option value="{{ c }}">{{ c }}</option>
+        {% endfor %}
+      </select>
+      <p class="hint">Canal pelo qual a reclamação foi recebida</p>
+    </div>
+
+    <div class="campo">
+      <label for="produto">Produto</label>
+      <select name="produto" id="produto">
+        <option value="">Não identificado</option>
+        {% for p in produtos %}
+          <option value="{{ p }}">{{ p }}</option>
+        {% endfor %}
+      </select>
+      <p class="hint">O agente também tentará identificar o produto pelo texto da reclamação</p>
+    </div>
+
+    <div class="campo">
+      <label for="texto_reclamacao">Texto da reclamação <span style="color:red">*</span></label>
+      <textarea name="texto_reclamacao" id="texto_reclamacao" required
+        placeholder="Cole ou digite aqui o texto completo da reclamação do cliente..."></textarea>
+      <p class="hint">Quanto mais detalhado, mais precisa será a classificação</p>
+    </div>
+
+    <div class="campo">
+      <label>É a primeira ocorrência?</label>
+      <div style="display:flex;gap:.8rem;margin-top:.2rem;">
+        <label style="display:flex;align-items:center;gap:.4rem;font-weight:400;cursor:pointer;">
+          <input type="radio" name="primeira_ocorrencia" value="sim" onchange="toggleData(this.value)"> Sim
+        </label>
+        <label style="display:flex;align-items:center;gap:.4rem;font-weight:400;cursor:pointer;">
+          <input type="radio" name="primeira_ocorrencia" value="nao" onchange="toggleData(this.value)"> Não
+        </label>
+      </div>
+    </div>
+
+    <div class="campo" id="campo_data" style="display:none;">
+      <label for="data_reclamacao">Data da ocorrência</label>
+      <input type="date" name="data_reclamacao" id="data_reclamacao"
+        style="width:100%;padding:.55rem .8rem;border:1px solid #ccc;border-radius:6px;font-size:.92rem;font-family:inherit;transition:border-color .2s;"
+        onfocus="this.style.borderColor='#0d3b6e'" onblur="this.style.borderColor='#ccc'">
+      <p class="hint">Se não preenchida, será usada a data de hoje</p>
+    </div>
+
+    <script>
+      function toggleData(valor) {
+        const campo = document.getElementById('campo_data');
+        const input = document.getElementById('data_reclamacao');
+        if (valor === 'sim') {
+          campo.style.display = 'none';
+          input.value = new Date().toISOString().split('T')[0];
+        } else {
+          campo.style.display = 'block';
+          input.value = '';
+        }
+      }
+    </script>
+
+    <div class="acoes">
+      <button type="submit" class="btn btn-primary">Registrar e Classificar</button>
+      <a href="/" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinGuard — {% block titulo %}Reclamações{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; min-height: 100vh; }
+
+    header {
+      background: #0d3b6e;
+      color: #fff;
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 60px;
+      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+    }
+    header h1 { font-size: 1.3rem; letter-spacing: .04em; }
+    header span { font-size: .8rem; opacity: .7; }
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 1.5rem;
+      font-size: .9rem;
+      opacity: .85;
+      transition: opacity .2s;
+    }
+    nav a:hover { opacity: 1; text-decoration: underline; }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    .flash { padding: .8rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-size: .95rem; }
+    .flash.sucesso { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
+    .flash.erro    { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
+
+    .btn {
+      display: inline-block;
+      padding: .55rem 1.2rem;
+      border-radius: 6px;
+      font-size: .9rem;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: filter .2s;
+    }
+    .btn:hover { filter: brightness(.9); }
+    .btn-primary { background: #0d3b6e; color: #fff; }
+    .btn-secondary { background: #6c757d; color: #fff; }
+    .btn-sm { padding: .35rem .8rem; font-size: .8rem; }
+
+    .badge {
+      display: inline-block;
+      padding: .25em .6em;
+      border-radius: 12px;
+      font-size: .78rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .badge-baixa    { background: #28a745; }
+    .badge-media    { background: #fd7e14; }
+    .badge-alta     { background: #dc3545; }
+    .badge-critica  { background: #6f0000; }
+    .badge-aberta   { background: #0d6efd; }
+    .badge-analise  { background: #fd7e14; }
+    .badge-resolvida{ background: #28a745; }
+    .badge-neutro   { background: #6c757d; }
+
+    footer { text-align: center; font-size: .78rem; color: #999; padding: 2rem 0 1rem; }
+  </style>
+</head>
+<body>
+<header>
+  <h1>🛡 FinGuard <span>| Gestão de Reclamações</span></h1>
+  <nav>
+    <a href="/">Reclamações</a>
+    <a href="/nova" class="btn btn-primary btn-sm" style="margin-left:1.5rem">+ Nova Reclamação</a>
+  </nav>
+</header>
+
+<div class="container">
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in msgs %}
+      <div class="flash {{ cat }}">{{ msg }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block conteudo %}{% endblock %}
+</div>
+
+<footer>FinGuard · POL-SAC-001 v2.0 · Uso Interno</footer>
+</body>
+</html>
