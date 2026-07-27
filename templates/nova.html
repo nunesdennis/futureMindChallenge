@@ -7,19 +7,24 @@
   .card h2 { font-size: 1.15rem; color: #0d3b6e; margin-bottom: 1.5rem; }
   .campo { margin-bottom: 1.2rem; }
   .campo label { display: block; font-size: .88rem; font-weight: 600; color: #444; margin-bottom: .4rem; }
-  .campo select, .campo textarea {
+  .campo select, .campo textarea, .campo input[type="date"] {
     width: 100%;
-    padding: .55rem .8rem;
-    border: 1px solid #ccc;
+    padding: .6rem .9rem;
+    border: 1px solid #ddd;
     border-radius: 6px;
     font-size: .92rem;
     font-family: inherit;
-    transition: border-color .2s;
+    transition: all .2s;
   }
-  .campo select:focus, .campo textarea:focus { outline: none; border-color: #0d3b6e; box-shadow: 0 0 0 3px rgba(13,59,110,.1); }
+  .campo select:focus, .campo textarea:focus, .campo input[type="date"]:focus {
+    outline: none;
+    border-color: #0d3b6e;
+    box-shadow: 0 0 0 3px rgba(13,59,110,.1);
+    background-color: #f8fafc;
+  }
   .campo textarea { resize: vertical; min-height: 140px; }
   .campo .hint { font-size: .78rem; color: #888; margin-top: .3rem; }
-  .acoes { display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center; }
+  .acoes { display: flex; gap: 1rem; margin-top: 2rem; align-items: center; flex-wrap: wrap; }
   .aviso-ia {
     background: #e8f0fe;
     border-left: 4px solid #0d3b6e;
@@ -83,9 +88,7 @@
 
     <div class="campo" id="campo_data" style="display:none;">
       <label for="data_reclamacao">Data da ocorrência</label>
-      <input type="date" name="data_reclamacao" id="data_reclamacao"
-        style="width:100%;padding:.55rem .8rem;border:1px solid #ccc;border-radius:6px;font-size:.92rem;font-family:inherit;transition:border-color .2s;"
-        onfocus="this.style.borderColor='#0d3b6e'" onblur="this.style.borderColor='#ccc'">
+      <input type="date" name="data_reclamacao" id="data_reclamacao">
       <p class="hint">Se não preenchida, será usada a data de hoje</p>
     </div>
 

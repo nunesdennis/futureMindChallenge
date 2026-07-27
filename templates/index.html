@@ -3,140 +3,347 @@
 
 {% block conteudo %}
 <style>
+  .header-section {
+    margin-bottom: 2rem;
+  }
+
+  .header-section h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #0d3b6e;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.5px;
+  }
+
+  .header-section .subtitle {
+    font-size: 0.9rem;
+    color: #666;
+    font-weight: 400;
+  }
+
   .filtros {
     background: #fff;
-    border-radius: 8px;
-    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    padding: 1.5rem;
     margin-bottom: 1.5rem;
-    box-shadow: 0 1px 4px rgba(0,0,0,.08);
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    border: 1px solid #f0f2f5;
+  }
+
+  .filtros-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
     align-items: flex-end;
+    margin-bottom: 1rem;
   }
-  .filtros label { font-size: .82rem; font-weight: 600; color: #555; display: block; margin-bottom: .3rem; }
+
+  .filtros-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .filtros label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+
   .filtros select, .filtros input {
-    padding: .4rem .7rem;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    font-size: .88rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
   }
-  .filtros .btn { align-self: flex-end; }
 
-  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-  thead { background: #0d3b6e; color: #fff; }
-  th { padding: .75rem 1rem; text-align: left; font-size: .82rem; font-weight: 600; white-space: nowrap; }
-  td { padding: .7rem 1rem; font-size: .87rem; border-bottom: 1px solid #f0f0f0; vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #f8f9fb; }
-  .texto-truncado { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .filtros select:focus, .filtros input:focus {
+    outline: none;
+    border-color: #0d3b6e;
+    box-shadow: 0 0 0 3px rgba(13, 59, 110, 0.1);
+  }
 
-  .paginacao { display: flex; justify-content: center; gap: .5rem; margin-top: 1.5rem; }
+  .filtros-botoes {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .total-info {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 1.2rem;
+    font-weight: 500;
+    padding: 0.8rem 1rem;
+    background: #f8fafc;
+    border-left: 3px solid #0d3b6e;
+    border-radius: 4px;
+  }
+
+  .table-container {
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    border: 1px solid #f0f2f5;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+  }
+
+  thead {
+    background: linear-gradient(135deg, #0d3b6e 0%, #1a5a9f 100%);
+    color: #fff;
+  }
+
+  th {
+    padding: 1rem 1.2rem;
+    text-align: left;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+
+  td {
+    padding: 0.95rem 1.2rem;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f0f2f5;
+    vertical-align: middle;
+  }
+
+  tbody tr {
+    transition: background-color 0.2s ease;
+  }
+
+  tbody tr:hover {
+    background: #f8fafc;
+  }
+
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .texto-truncado {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #555;
+  }
+
+  .acoes-cell {
+    display: flex;
+    gap: 0.6rem;
+    white-space: nowrap;
+  }
+
+  .acoes-cell .btn {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 3px 10px rgba(0,0,0,.12);
+  }
+
+  .acoes-cell .btn:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 15px rgba(0,0,0,.2);
+  }
+
+  .acoes-cell form {
+    margin: 0 !important;
+  }
+
+  .acoes-cell form button {
+    padding: 0.4rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 3px 10px rgba(0,0,0,.12);
+  }
+
+  .acoes-cell form button:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 6px 15px rgba(0,0,0,.2);
+  }
+
+  .acoes-cell .btn-primary {
+    background: #1a5a9f;
+    color: #fff;
+  }
+
+  .acoes-cell .btn-primary:hover {
+    background: #164a7f;
+    box-shadow: 0 6px 15px rgba(26, 90, 159, .3) !important;
+  }
+
+  .acoes-cell .btn-danger {
+    background: #d94a54;
+    color: #fff;
+  }
+
+  .acoes-cell .btn-danger:hover {
+    background: #c23a44;
+    box-shadow: 0 6px 15px rgba(217, 74, 84, .3) !important;
+  }
+
+  .paginacao {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+  }
+
   .paginacao a, .paginacao span {
-    padding: .4rem .9rem;
-    border-radius: 5px;
-    font-size: .88rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
     text-decoration: none;
-    border: 1px solid #ddd;
+    border: 1px solid #e0e0e0;
     background: #fff;
     color: #333;
+    transition: all 0.2s;
   }
-  .paginacao a:hover { background: #0d3b6e; color: #fff; border-color: #0d3b6e; }
-  .paginacao .atual { background: #0d3b6e; color: #fff; border-color: #0d3b6e; font-weight: 700; }
 
-  .total-info { font-size: .85rem; color: #666; margin-bottom: .8rem; }
+  .paginacao a:hover {
+    background: #0d3b6e;
+    color: #fff;
+    border-color: #0d3b6e;
+  }
+
+  .paginacao .atual {
+    background: #0d3b6e;
+    color: #fff;
+    border-color: #0d3b6e;
+    font-weight: 700;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: #999;
+  }
+
+  .empty-state p {
+    font-size: 1rem;
+    margin: 0;
+  }
+
 </style>
 
-<h2 style="margin-bottom:1.2rem; font-size:1.2rem; color:#0d3b6e;">Reclamações Registradas</h2>
+
+<div class="header-section">
+  <h2>Reclamações Registradas</h2>
+  <p class="subtitle">Gerencie e acompanhe todas as reclamações de clientes</p>
+</div>
 
 <form method="get" class="filtros">
-  <div>
-    <label>Canal</label>
-    <select name="canal">
-      <option value="">Todos</option>
-      {% for c in canais %}
-        <option value="{{ c }}" {% if c == canal_filtro %}selected{% endif %}>{{ c }}</option>
-      {% endfor %}
-    </select>
+  <div class="filtros-container">
+    <div class="filtros-grupo">
+      <label for="canal">Canal</label>
+      <select id="canal" name="canal">
+        <option value="">Todos os canais</option>
+        {% for c in canais %}
+          <option value="{{ c }}" {% if c == canal_filtro %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filtros-grupo">
+      <label for="urgencia">Urgência</label>
+      <select id="urgencia" name="urgencia">
+        <option value="">Todas as urgências</option>
+        {% for u in ["Baixa","Média","Alta","Crítica"] %}
+          <option value="{{ u }}" {% if u == urgencia_filtro %}selected{% endif %}>{{ u }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filtros-grupo">
+      <label for="status">Status</label>
+      <select id="status" name="status">
+        <option value="">Todos os status</option>
+        {% for s in status_opcoes %}
+          <option value="{{ s }}" {% if s == status_filtro %}selected{% endif %}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
   </div>
-  <div>
-    <label>Urgência</label>
-    <select name="urgencia">
-      <option value="">Todas</option>
-      {% for u in ["Baixa","Média","Alta","Crítica"] %}
-        <option value="{{ u }}" {% if u == urgencia_filtro %}selected{% endif %}>{{ u }}</option>
-      {% endfor %}
-    </select>
+  <div class="filtros-botoes">
+    <button type="submit" class="btn btn-primary btn-sm">Aplicar Filtros</button>
+    <a href="/" class="btn btn-secondary btn-sm">Limpar Filtros</a>
   </div>
-  <div>
-    <label>Status</label>
-    <select name="status">
-      <option value="">Todos</option>
-      {% for s in status_opcoes %}
-        <option value="{{ s }}" {% if s == status_filtro %}selected{% endif %}>{{ s }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <button type="submit" class="btn btn-primary btn-sm">Filtrar</button>
-  <a href="/" class="btn btn-secondary btn-sm">Limpar</a>
 </form>
 
-<p class="total-info">
-  Exibindo {{ reclamacoes|length }} de {{ paginacao.total }} reclamações
-  {% if canal_filtro or urgencia_filtro or status_filtro %} (filtros ativos){% endif %}
-</p>
+<div class="total-info">
+  <strong>{{ reclamacoes|length }} de {{ paginacao.total }}</strong> reclamações
+  {% if canal_filtro or urgencia_filtro or status_filtro %}<span style="margin-left: 1rem; font-style: italic;">filtros ativos</span>{% endif %}
+</div>
 
 {% if reclamacoes %}
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>Data</th>
-      <th>Canal</th>
-      <th>Produto</th>
-      <th>Categoria</th>
-      <th>Urgência</th>
-      <th>Sentimento</th>
-      <th>Status</th>
-      <th>Reclamação</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for r in reclamacoes %}
-    <tr>
-      <td style="font-size:.8rem; font-family:monospace; color:#555;">{{ r.id }}</td>
-      <td style="white-space:nowrap;">{{ r.data_reclamacao.strftime('%d/%m/%Y') if r.data_reclamacao else '—' }}</td>
-      <td>{{ r.canal }}</td>
-      <td>{{ r.produto or '—' }}</td>
-      <td>{{ r.categoria or '—' }}</td>
-      <td>
-        {% if r.urgencia %}
-          {% set cls = r.urgencia | lower | replace('é','e') | replace('í','i') %}
-          <span class="badge badge-{{ cls }}">{{ r.urgencia }}</span>
-        {% else %}—{% endif %}
-      </td>
-      <td>
-        {% if r.sentimento %}
-          {% set scls = {"Positivo":"#28a745","Neutro":"#6c757d","Negativo":"#fd7e14","Crítico":"#6f0000"} %}
-          <span class="badge" style="background:{{ scls.get(r.sentimento,'#6c757d') }}">{{ r.sentimento }}</span>
-        {% else %}—{% endif %}
-      </td>
-      <td>
-        {% set stcls = {"Aberta":"aberta","Em análise":"analise","Resolvida":"resolvida"} %}
-        <span class="badge badge-{{ stcls.get(r.status,'neutro') }}">{{ r.status }}</span>
-      </td>
-      <td class="texto-truncado" title="{{ r.texto_reclamacao }}">{{ r.texto_reclamacao }}</td>
-      <td style="display:flex;gap:.4rem;">
-        <a href="/reclamacao/{{ r.id }}" class="btn btn-secondary btn-sm">Ver</a>
-        <form method="post" action="/reclamacao/{{ r.id }}/apagar" onsubmit="return confirm('Apagar {{ r.id }}?')">
-          <button type="submit" class="btn btn-sm" style="background:#dc3545;color:#fff;border:none;">Apagar</button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Data</th>
+        <th>Canal</th>
+        <th>Produto</th>
+        <th>Categoria</th>
+        <th>Urgência</th>
+        <th>Sentimento</th>
+        <th>Status</th>
+        <th>Reclamação</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in reclamacoes %}
+      <tr>
+        <td style="font-size:0.8rem; font-family:monospace; color:#999;">{{ r.id }}</td>
+        <td style="white-space:nowrap;">{{ r.data_reclamacao.strftime('%d/%m/%Y') if r.data_reclamacao else '—' }}</td>
+        <td><strong>{{ r.canal }}</strong></td>
+        <td>{{ r.produto or '—' }}</td>
+        <td>{{ r.categoria or '—' }}</td>
+        <td>
+          {% if r.urgencia %}
+            {% set cls = r.urgencia | lower | replace('é','e') | replace('í','i') %}
+            <span class="badge badge-{{ cls }}">{{ r.urgencia }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if r.sentimento %}
+            {% set scls = {"Positivo":"positivo","Neutro":"neutro","Negativo":"negativo","Crítico":"critico"} %}
+            <span class="badge badge-{{ scls.get(r.sentimento,'neutro') }}">{{ r.sentimento }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% set stcls = {"Aberta":"aberta","Em análise":"analise","Resolvida":"resolvida"} %}
+          <span class="badge badge-{{ stcls.get(r.status,'neutro') }}">{{ r.status }}</span>
+        </td>
+        <td class="texto-truncado" title="{{ r.texto_reclamacao }}">{{ r.texto_reclamacao }}</td>
+        <td class="acoes-cell">
+          <a href="/reclamacao/{{ r.id }}" class="btn btn-primary btn-sm">Ver</a>
+          <form method="post" action="/reclamacao/{{ r.id }}/apagar" onsubmit="return confirm('Apagar {{ r.id }}?')">
+            <button type="submit" class="btn btn-danger btn-sm">Apagar</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 
 {% if paginacao.pages > 1 %}
 <div class="paginacao">
@@ -159,8 +366,11 @@
   {% endif %}
 </div>
 {% endif %}
-
 {% else %}
-<p style="color:#888; text-align:center; padding:3rem;">Nenhuma reclamação encontrada.</p>
+<div class="table-container">
+  <div class="empty-state">
+    <p>😊 Nenhuma reclamação encontrada com os filtros aplicados.</p>
+  </div>
+</div>
 {% endif %}
 {% endblock %}
