@@ -131,72 +131,44 @@
     border-bottom: none;
   }
 
-  .texto-truncado {
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .texto-resumo {
+    min-width: 400px;
+    max-height: 80px;
+    overflow-y: scroll;
     color: #555;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    padding-right: 4px;
   }
 
-  .acoes-cell {
+  .texto-resumo::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .texto-resumo::-webkit-scrollbar-track {
+    background: #f0f2f5;
+    border-radius: 3px;
+  }
+
+  .texto-resumo::-webkit-scrollbar-thumb {
+    background: #b0bac5;
+    border-radius: 3px;
+  }
+
+  .texto-resumo::-webkit-scrollbar-thumb:hover {
+    background: #0d3b6e;
+  }
+
+  .acoes-col {
     display: flex;
-    gap: 0.6rem;
-    white-space: nowrap;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
   }
 
-  .acoes-cell .btn {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 6px;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 3px 10px rgba(0,0,0,.12);
-  }
-
-  .acoes-cell .btn:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 6px 15px rgba(0,0,0,.2);
-  }
-
-  .acoes-cell form {
-    margin: 0 !important;
-  }
-
-  .acoes-cell form button {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 3px 10px rgba(0,0,0,.12);
-  }
-
-  .acoes-cell form button:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 6px 15px rgba(0,0,0,.2);
-  }
-
-  .acoes-cell .btn-primary {
-    background: #1a5a9f;
-    color: #fff;
-  }
-
-  .acoes-cell .btn-primary:hover {
-    background: #164a7f;
-    box-shadow: 0 6px 15px rgba(26, 90, 159, .3) !important;
-  }
-
-  .acoes-cell .btn-danger {
-    background: #d94a54;
-    color: #fff;
-  }
-
-  .acoes-cell .btn-danger:hover {
-    background: #c23a44;
-    box-shadow: 0 6px 15px rgba(217, 74, 84, .3) !important;
+  .acoes-col form {
+    margin: 0;
   }
 
   .paginacao {
@@ -304,7 +276,7 @@
         <th>Urgência</th>
         <th>Sentimento</th>
         <th>Status</th>
-        <th>Reclamação</th>
+        <th>Resumo</th>
         <th>Ações</th>
       </tr>
     </thead>
@@ -332,12 +304,14 @@
           {% set stcls = {"Aberta":"aberta","Em análise":"analise","Resolvida":"resolvida"} %}
           <span class="badge badge-{{ stcls.get(r.status,'neutro') }}">{{ r.status }}</span>
         </td>
-        <td class="texto-truncado" title="{{ r.texto_reclamacao }}">{{ r.texto_reclamacao }}</td>
-        <td class="acoes-cell">
-          <a href="/reclamacao/{{ r.id }}" class="btn btn-primary btn-sm">Ver</a>
-          <form method="post" action="/reclamacao/{{ r.id }}/apagar" onsubmit="return confirm('Apagar {{ r.id }}?')">
-            <button type="submit" class="btn btn-danger btn-sm">Apagar</button>
-          </form>
+        <td class="texto-resumo">{{ r.resumo or r.texto_reclamacao }}</td>
+        <td>
+          <div class="acoes-col">
+            <a href="/reclamacao/{{ r.id }}" class="btn btn-primary btn-sm">Ver</a>
+            <form method="post" action="/reclamacao/{{ r.id }}/apagar" onsubmit="return confirm('Apagar reclamação {{ r.id }}?')">
+              <button type="submit" class="btn btn-danger btn-sm">Deletar</button>
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}
