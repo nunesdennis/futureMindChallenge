@@ -84,8 +84,8 @@
       <div class="campo-row">
         <span class="label">Status</span>
         <span class="valor">
-          {% set stcls = {"Aberta":"#0d6efd","Em análise":"#fd7e14","Resolvida":"#28a745"} %}
-          <span class="badge" style="background:{{ stcls.get(rec.status,'#6c757d') }}">{{ rec.status }}</span>
+          {% set stcls = {"Aberta":"badge-aberta","Em análise":"badge-analise","Resolvida":"badge-resolvida"} %}
+          <span class="badge {{ stcls.get(rec.status,'badge-neutro') }}">{{ rec.status }}</span>
         </span>
       </div>
 
@@ -111,8 +111,9 @@
       <h3>🤖 Classificação do Agente (POL-SAC-001)</h3>
 
       {% if rec.urgencia %}
-        {% set ucls = {"Baixa":"#28a745","Média":"#fd7e14","Alta":"#dc3545","Crítica":"#6f0000"} %}
-        {% set scls = {"Positivo":"#28a745","Neutro":"#6c757d","Negativo":"#fd7e14","Crítico":"#6f0000"} %}
+        {% set ucls = {"Baixa":"badge-baixa","Média":"badge-media","Alta":"badge-alta","Crítica":"badge-critica"} %}
+        {% set scls = {"Positivo":"badge-positivo","Neutro":"badge-neutro","Negativo":"badge-negativo","Crítico":"badge-critico"} %}
+        {% set stcls = {"Aberta":"badge-aberta","Em análise":"badge-analise","Resolvida":"badge-resolvida"} %}
 
         <div class="campo-row">
           <span class="label">Categoria</span>
@@ -125,13 +126,13 @@
         <div class="campo-row">
           <span class="label">Sentimento</span>
           <span class="valor">
-            <span class="badge" style="background:{{ scls.get(rec.sentimento,'#6c757d') }}">{{ rec.sentimento or '—' }}</span>
+            <span class="badge {{ scls.get(rec.sentimento,'badge-neutro') }}">{{ rec.sentimento or '—' }}</span>
           </span>
         </div>
         <div class="campo-row">
           <span class="label">Urgência</span>
           <span class="valor">
-            <span class="badge" style="background:{{ ucls.get(rec.urgencia,'#6c757d') }}">{{ rec.urgencia }}</span>
+            <span class="badge {{ ucls.get(rec.urgencia,'badge-neutro') }}">{{ rec.urgencia }}</span>
           </span>
         </div>
         <div class="campo-row">
