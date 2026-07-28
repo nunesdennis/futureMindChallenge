@@ -4,161 +4,432 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FinGuard — {% block titulo %}Reclamações{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #222; min-height: 100vh; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #f1f3f6;
+      color: #222;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
+    /* ── Header ── */
     header {
-      background: #0d3b6e;
-      color: #fff;
-      padding: 0 2rem;
+      background: #0f1623;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      min-height: 60px;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      box-shadow: 0 2px 6px rgba(0,0,0,.3);
+      padding: 0 1.5rem;
+      height: 56px;
+      gap: 1rem;
+      flex-shrink: 0;
     }
-    header h1 { font-size: 1.3rem; letter-spacing: .04em; }
-    header span { font-size: .8rem; opacity: .7; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+      text-decoration: none;
+    }
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #2563eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .brand-name {
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      line-height: 1;
+    }
+    .brand-sub {
+      color: #64748b;
+      font-size: 0.625rem;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    .header-divider {
+      width: 1px;
+      height: 16px;
+      background: #334155;
+      flex-shrink: 0;
+    }
+
     nav {
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      padding: 0.5rem 0;
+      gap: 2px;
     }
     nav a {
-      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #94a3b8;
       text-decoration: none;
-      margin-left: 1rem;
-      font-size: .9rem;
-      opacity: .85;
-      transition: opacity .2s;
+      transition: all 0.15s;
     }
-    nav a:first-child { margin-left: 0; }
-    nav a:hover { opacity: 1; text-decoration: underline; }
+    nav a:hover { color: #e2e8f0; background: rgba(255,255,255,0.06); }
+    nav a.active { color: #fff; background: rgba(255,255,255,0.1); }
 
-    .container { max-width: 1400px; margin: 0 auto; padding: 2rem 40px; }
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .icon-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+      color: #64748b;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.08); }
 
-    @media (max-width: 600px) {
-      header { padding: 0.75rem 1rem; }
-      header h1 { font-size: 1.1rem; }
-      .container { padding: 1.25rem 1rem; }
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .user-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .user-label {
+      font-size: 0.75rem;
+      color: #64748b;
     }
 
-    .flash { padding: .8rem 1.2rem; border-radius: 6px; margin-bottom: 1.2rem; font-size: .95rem; }
+    /* ── Main ── */
+    main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      scrollbar-width: none;
+    }
+
+    /* ── Flash messages ── */
+    .flash { padding: .8rem 1.2rem; border-radius: 8px; margin-bottom: 1.2rem; font-size: .88rem; }
     .flash.sucesso { background: #d4edda; color: #155724; border-left: 4px solid #28a745; }
     .flash.erro    { background: #f8d7da; color: #721c24; border-left: 4px solid #dc3545; }
 
+    /* ── Buttons ── */
     .btn {
-      display: inline-block;
-      padding: .65rem 1.4rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: .55rem 1.1rem;
       border-radius: 8px;
-      font-size: .9rem;
+      font-size: 0.75rem;
       font-weight: 600;
       cursor: pointer;
       border: none;
       text-decoration: none;
-      transition: all .3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      box-shadow: 0 4px 12px rgba(0,0,0,.1);
-      position: relative;
-      overflow: hidden;
+      transition: all .15s;
+      white-space: nowrap;
     }
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: rgba(255,255,255,.15);
-      transition: left .3s ease;
-    }
-    .btn:hover::before { left: 100%; }
-    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,.15); }
-    .btn:active { transform: translateY(0); }
-    .btn-primary { background: #1a5a9f; color: #fff; }
-    .btn-primary:hover { background: #164a7f; box-shadow: 0 6px 20px rgba(26, 90, 159, .3); }
-    .btn-secondary { background: #7a8a99; color: #fff; }
-    .btn-secondary:hover { background: #6a7a89; box-shadow: 0 6px 20px rgba(122, 138, 153, .3); }
-    .btn-danger { background: #d94a54; color: #fff; }
-    .btn-danger:hover { background: #c23a44; box-shadow: 0 6px 20px rgba(217, 74, 84, .3); }
-    .btn-success { background: #2ba86b; color: #fff; }
-    .btn-success:hover { background: #23895b; box-shadow: 0 6px 20px rgba(43, 168, 107, .3); }
-    .btn-sm { padding: .45rem .9rem; font-size: .8rem; }
+    .btn:hover { opacity: 0.88; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); opacity: 1; }
+    .btn-primary { background: linear-gradient(135deg, #1a2744 0%, #2563eb 100%); color: #fff; box-shadow: 0 2px 8px rgba(37,99,235,0.3); }
+    .btn-secondary { background: #fff; color: #475569; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .btn-secondary:hover { background: #f8fafc; border-color: #cbd5e1; opacity: 1; }
+    .btn-danger { background: linear-gradient(135deg, #c8102e 0%, #991b1b 100%); color: #fff; box-shadow: 0 2px 8px rgba(200,16,46,0.3); }
+    .btn-success { background: linear-gradient(135deg, #059669 0%, #047857 100%); color: #fff; box-shadow: 0 2px 8px rgba(5,150,105,0.3); }
+    .btn-sm { padding: .35rem .75rem; font-size: 0.7rem; }
 
+    /* ── Badges ── */
     .badge {
-      display: inline-block;
-      padding: .4em .75em;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: .22em .65em;
       border-radius: 20px;
-      font-size: .75rem;
-      font-weight: 700;
-      color: #fff;
-      transition: all .2s ease;
-      box-shadow: 0 2px 8px rgba(0,0,0,.15);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      position: relative;
-      overflow: hidden;
+      font-size: .68rem;
+      font-weight: 600;
+      white-space: nowrap;
     }
-    .badge::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,.2) 0%, transparent 100%);
-      pointer-events: none;
-    }
-    .badge:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.2); }
-    .badge-baixa    { background: linear-gradient(135deg, #2ba86b 0%, #1e8a55 100%); }
-    .badge-baixa:hover { box-shadow: 0 4px 12px rgba(43, 168, 107, .4); }
-    .badge-media    { background: linear-gradient(135deg, #fd7e14 0%, #e66a00 100%); }
-    .badge-media:hover { box-shadow: 0 4px 12px rgba(253, 126, 20, .4); }
-    .badge-alta     { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
-    .badge-alta:hover { box-shadow: 0 4px 12px rgba(220, 53, 69, .4); }
-    .badge-critica  { background: linear-gradient(135deg, #8b0000 0%, #6f0000 100%); }
-    .badge-critica:hover { box-shadow: 0 4px 12px rgba(139, 0, 0, .5); }
-    .badge-aberta   { background: linear-gradient(135deg, #0d6efd 0%, #0b5ed7 100%); }
-    .badge-aberta:hover { box-shadow: 0 4px 12px rgba(13, 110, 253, .4); }
-    .badge-analise  { background: linear-gradient(135deg, #fd7e14 0%, #e66a00 100%); }
-    .badge-analise:hover { box-shadow: 0 4px 12px rgba(253, 126, 20, .4); }
-    .badge-resolvida{ background: linear-gradient(135deg, #2ba86b 0%, #1e8a55 100%); }
-    .badge-resolvida:hover { box-shadow: 0 4px 12px rgba(43, 168, 107, .4); }
-    .badge-neutro   { background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%); }
-    .badge-neutro:hover { box-shadow: 0 4px 12px rgba(108, 117, 125, .4); }
-    .badge-positivo { background: linear-gradient(135deg, #2ba86b 0%, #1e8a55 100%); }
-    .badge-positivo:hover { box-shadow: 0 4px 12px rgba(43, 168, 107, .4); }
-    .badge-negativo { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
-    .badge-negativo:hover { box-shadow: 0 4px 12px rgba(220, 53, 69, .4); }
-    .badge-critico  { background: linear-gradient(135deg, #8b0000 0%, #6f0000 100%); }
-    .badge-critico:hover { box-shadow: 0 4px 12px rgba(139, 0, 0, .5); }
+    .badge-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
-    footer { text-align: center; font-size: .78rem; color: #999; padding: 2rem 0 1rem; }
+    .badge-baixa    { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-baixa .badge-dot { background: #22c55e; }
+    .badge-media    { background: #fefce8; color: #a16207; border: 1px solid #fde68a; }
+    .badge-media .badge-dot { background: #eab308; }
+    .badge-alta     { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-alta .badge-dot { background: #f97316; }
+    .badge-critica  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-critica .badge-dot { background: #ef4444; animation: pulse-dot 1.2s ease-in-out infinite; }
+    .badge-aberta   { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-analise  { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-resolvida{ background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-neutro   { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+    .badge-positivo { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+    .badge-negativo { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+    .badge-critico  { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+    .badge-canal-bacen    { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+    .badge-canal-ouvidoria{ background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+    .badge-canal-redes    { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+    .badge-canal-sac      { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+    .badge-canal-reclame  { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    footer { text-align: center; font-size: .72rem; color: #94a3b8; padding: 1.5rem 0 1rem; }
   </style>
 </head>
 <body>
 <header>
-  <h1>🛡 FinGuard <span>| Gestão de Reclamações</span></h1>
+  <a href="/" class="brand">
+    <div class="brand-icon">
+      <svg width="14" height="14" fill="none" stroke="#fff" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <div>
+      <p class="brand-name">FinGuard</p>
+      <p class="brand-sub">Dashboard Gerencial</p>
+    </div>
+  </a>
+
+  <div class="header-divider"></div>
+
   <nav>
-    <a href="/">Reclamações</a>
-    <a href="/dashboard">Dashboard</a>
-    <a href="/nova" class="btn btn-primary btn-sm" style="margin-left:1.5rem">+ Nova Reclamação</a>
+    <a href="/dashboard" class="{% if request.path == '/dashboard' %}active{% endif %}">Dashboard</a>
+    <a href="/" class="{% if request.path == '/' %}active{% endif %}">Reclamações</a>
   </nav>
+
+  <div class="header-right">
+    <button class="icon-btn" title="Notificações">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+    </button>
+    <button class="icon-btn" title="Configurações">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+    <div class="header-divider"></div>
+    <div class="user-chip">
+      <div class="user-avatar">
+        <svg width="13" height="13" fill="none" stroke="#94a3b8" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+        </svg>
+      </div>
+      <span class="user-label">Gerente Ops.</span>
+    </div>
+    <div class="header-divider"></div>
+    <button onclick="openNovaModal()" class="btn btn-success btn-sm">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Nova Reclamação
+    </button>
+  </div>
 </header>
 
-<div class="container">
+<main>
   {% with msgs = get_flashed_messages(with_categories=true) %}
     {% for cat, msg in msgs %}
       <div class="flash {{ cat }}">{{ msg }}</div>
     {% endfor %}
   {% endwith %}
   {% block conteudo %}{% endblock %}
-</div>
+</main>
 
 <footer>FinGuard · POL-SAC-001 v2.0 · Uso Interno</footer>
+
+<!-- ── Modal Nova Reclamação ── -->
+<div id="novaModal" style="display:none; position:fixed; inset:0; z-index:1000; align-items:center; justify-content:center; background:rgba(0,0,0,0.54); backdrop-filter:blur(3px);"
+     onclick="if(event.target===this) closeNovaModal()">
+  <div style="position:relative; display:flex; flex-direction:column; width:680px; max-width:calc(100vw - 2rem); max-height:calc(100vh - 3rem); background:#fff; border-radius:12px; box-shadow:0 24px 64px rgba(0,0,0,0.22), 0 8px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06); font-family:'Inter',system-ui,sans-serif;" onclick="event.stopPropagation()">
+
+    <!-- Header -->
+    <div style="flex-shrink:0; padding:1.2rem 1.5rem 1rem; border-bottom:1px solid #f1f5f9; background:linear-gradient(90deg,rgba(37,99,235,0.04) 0%,transparent 100%);">
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:0.75rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#1a2744 0%,#2563eb 100%); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div>
+            <h2 style="font-size:0.88rem; font-weight:700; color:#0f172a; margin:0;">Nova Reclamação <span style="color:#94a3b8; font-weight:400;">|</span> <span style="color:#64748b; font-weight:600;">Triagem e Entrada de Dados</span></h2>
+            <p style="font-size:0.72rem; color:#64748b; margin:0.2rem 0 0;">Insira o relato bruto do cliente para inicializar o fluxo de análise e orquestração de agentes de IA.</p>
+          </div>
+        </div>
+        <button onclick="closeNovaModal()" style="width:28px; height:28px; border-radius:8px; border:none; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#94a3b8; flex-shrink:0; transition:all 0.15s;" onmouseover="this.style.background='#f1f5f9';this.style.color='#334155'" onmouseout="this.style.background='transparent';this.style.color='#94a3b8'">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="overflow-y:auto; padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:1rem; scrollbar-width:thin;">
+
+      <!-- Aviso IA -->
+      <div style="display:flex; align-items:flex-start; gap:0.75rem; background:rgba(37,99,235,0.04); border:1px solid rgba(37,99,235,0.15); border-radius:8px; padding:0.85rem 1rem; font-size:0.78rem; color:#1e3a5f; line-height:1.5;">
+        <div style="width:28px; height:28px; border-radius:6px; background:rgba(37,99,235,0.1); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">
+          <svg width="13" height="13" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <span>O agente classificador analisará automaticamente o texto e aplicará as regras da <strong>POL-SAC-001</strong> para determinar categoria, urgência, sentimento e ações imediatas.</span>
+      </div>
+
+      <form id="novaForm" method="post" action="/nova" style="display:flex; flex-direction:column; gap:1rem;">
+
+        <!-- Canal + Produto -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <label for="m_canal" style="font-size:0.75rem; font-weight:600; color:#334155;">Canal de Origem <span style="color:#ef4444;">*</span></label>
+            <select name="canal" id="m_canal" required style="padding:0.55rem 0.85rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.82rem; font-family:inherit; color:#334155; background:#f8fafc; outline:none; transition:all 0.15s;" onfocus="this.style.borderColor='#3b82f6';this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.12)';this.style.background='#fff'" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';this.style.background='#f8fafc'">
+              <option value="">Selecione o canal</option>
+              {% for c in canais_modal %}
+                <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0.4rem;">
+            <label for="m_produto" style="font-size:0.75rem; font-weight:600; color:#334155;">Produto Envolvido</label>
+            <select name="produto" id="m_produto" style="padding:0.55rem 0.85rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.82rem; font-family:inherit; color:#334155; background:#f8fafc; outline:none; transition:all 0.15s;" onfocus="this.style.borderColor='#3b82f6';this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.12)';this.style.background='#fff'" onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';this.style.background='#f8fafc'">
+              <option value="">Selecione ou deixe em branco...</option>
+              {% for p in produtos_modal %}
+                <option value="{{ p }}">{{ p }}</option>
+              {% endfor %}
+            </select>
+            <span style="font-size:0.67rem; color:#94a3b8;">A IA identificará o produto automaticamente se omitido.</span>
+          </div>
+        </div>
+
+        <!-- Texto -->
+        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <label for="m_texto" style="font-size:0.75rem; font-weight:600; color:#334155;">Texto da Reclamação <span style="color:#ef4444;">*</span></label>
+            <span id="m_charCount" style="font-size:0.67rem; font-family:monospace; color:#94a3b8;">0 / 2.000</span>
+          </div>
+          <textarea name="texto_reclamacao" id="m_texto" required maxlength="2000" rows="6"
+            placeholder="Cole ou digite aqui o texto completo da reclamação do cliente (incluindo desabafos, valores, erros de digitação ou termos informais)..."
+            oninput="updateCharCount(this)"
+            style="padding:0.75rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.82rem; font-family:inherit; color:#334155; background:#f8fafc; outline:none; resize:vertical; line-height:1.65; transition:all 0.15s;"
+            onfocus="this.style.borderColor='#3b82f6';this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.12)';this.style.background='#fff'"
+            onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';this.style.background='#f8fafc'"></textarea>
+        </div>
+
+        <!-- Alerta de política (canal Banco Central) -->
+        <div id="m_policyAlert" style="display:none; align-items:flex-start; gap:0.75rem; background:#FFFBEB; border:1px solid #FDE68A; border-radius:8px; padding:0.85rem 1rem;">
+          <div style="width:28px; height:28px; border-radius:6px; background:rgba(245,158,11,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;">
+            <svg width="14" height="14" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <p style="font-size:0.75rem; font-weight:700; color:#92400e; margin:0 0 0.2rem;">Aviso da Política Interna (POL-SAC-001):</p>
+            <p style="font-size:0.72rem; color:#b45309; line-height:1.5; margin:0;">Reclamações com origem no <strong>"Banco Central"</strong> ou com menção a órgãos reguladores são categorizadas automaticamente como <span style="background:#dc2626; color:#fff; font-size:0.65rem; font-weight:700; padding:0.1rem 0.4rem; border-radius:4px;">URGÊNCIA CRÍTICA</span> (SLA máximo de <strong>4 horas</strong>).</p>
+          </div>
+        </div>
+
+        <!-- Primeira ocorrência -->
+        <div style="display:flex; flex-direction:column; gap:0.4rem;">
+          <label style="font-size:0.75rem; font-weight:600; color:#334155;">É a primeira ocorrência?</label>
+          <div style="display:flex; gap:1rem;">
+            <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.78rem; color:#334155; cursor:pointer;">
+              <input type="radio" name="primeira_ocorrencia" value="sim" onchange="toggleModalData(this.value)" style="accent-color:#2563eb;"> Sim
+            </label>
+            <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.78rem; color:#334155; cursor:pointer;">
+              <input type="radio" name="primeira_ocorrencia" value="nao" onchange="toggleModalData(this.value)" style="accent-color:#2563eb;"> Não
+            </label>
+          </div>
+        </div>
+
+        <div id="m_campo_data" style="display:none; flex-direction:column; gap:0.4rem;">
+          <label for="m_data" style="font-size:0.75rem; font-weight:600; color:#334155;">Data da Ocorrência</label>
+          <input type="date" name="data_reclamacao" id="m_data"
+            style="padding:0.55rem 0.85rem; border:1px solid #e2e8f0; border-radius:8px; font-size:0.82rem; font-family:inherit; color:#334155; background:#f8fafc; outline:none; transition:all 0.15s; width:100%;"
+            onfocus="this.style.borderColor='#3b82f6';this.style.boxShadow='0 0 0 3px rgba(59,130,246,0.12)';this.style.background='#fff'"
+            onblur="this.style.borderColor='#e2e8f0';this.style.boxShadow='none';this.style.background='#f8fafc'">
+        </div>
+
+      </form>
+    </div>
+
+    <!-- Footer -->
+    <div style="flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; border-top:1px solid #f1f5f9; background:#fafbfc; border-radius:0 0 12px 12px; gap:0.75rem; flex-wrap:wrap;">
+      <span style="font-size:0.67rem; color:#94a3b8;"><span style="color:#ef4444; font-weight:600;">*</span> Campos obrigatórios</span>
+      <div style="display:flex; gap:0.5rem;">
+        <button onclick="closeNovaModal()" class="btn btn-secondary">Cancelar</button>
+        <button onclick="document.getElementById('novaForm').submit()" class="btn btn-primary">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Registrar e Analisar com FinGuard
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function openNovaModal() {
+    const m = document.getElementById('novaModal');
+    m.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeNovaModal() {
+    document.getElementById('novaModal').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNovaModal(); });
+
+  function updateCharCount(el) {
+    const max = 2000;
+    const n = el.value.length;
+    const counter = document.getElementById('m_charCount');
+    counter.textContent = n.toLocaleString('pt-BR') + ' / ' + max.toLocaleString('pt-BR');
+    counter.style.color = n > max * 0.9 ? '#ef4444' : '#94a3b8';
+    checkPolicyAlert();
+  }
+
+  function checkPolicyAlert() {
+    const canal = document.getElementById('m_canal').value;
+    const texto = document.getElementById('m_texto').value;
+    const show = canal === 'Banco Central' || /banco central|bacen|procon|anatel|consumidor/i.test(texto);
+    document.getElementById('m_policyAlert').style.display = show ? 'flex' : 'none';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('m_canal').addEventListener('change', checkPolicyAlert);
+  });
+
+  function toggleModalData(valor) {
+    const campo = document.getElementById('m_campo_data');
+    const input = document.getElementById('m_data');
+    if (valor === 'sim') {
+      campo.style.display = 'none';
+      input.value = new Date().toISOString().split('T')[0];
+    } else {
+      campo.style.display = 'flex';
+      input.value = '';
+    }
+  }
+</script>
 </body>
 </html>

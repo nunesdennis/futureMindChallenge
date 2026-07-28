@@ -3,170 +3,225 @@
 
 {% block conteudo %}
 <style>
-  .voltar { font-size: .88rem; color: #0d3b6e; text-decoration: none; margin-bottom: 1rem; display: inline-block; }
-  .voltar:hover { text-decoration: underline; }
+  .detail-root { display: flex; flex-direction: column; gap: 1rem; }
 
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-  @media(max-width:720px){ .grid { grid-template-columns: 1fr; } }
+  /* ── Breadcrumb + header ── */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-size: 0.75rem; color: #64748b; text-decoration: none; font-weight: 500;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: #0f172a; }
 
-  .card { background: #fff; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,.08); }
-  .card h3 { font-size: 1rem; color: #0d3b6e; margin-bottom: 1rem; border-bottom: 2px solid #e9ecef; padding-bottom: .5rem; }
-  .campo-row { display: flex; justify-content: space-between; font-size: .88rem; margin-bottom: .6rem; }
-  .campo-row .label { color: #666; font-weight: 600; }
-  .campo-row .valor { text-align: right; }
+  .detail-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
+  }
+  .detail-id { font-size: 1rem; font-weight: 700; color: #0f172a; font-family: monospace; }
+  .detail-date { font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem; }
+
+  .critica-banner {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: #fef2f2; border: 1px solid #fecaca;
+    border-radius: 8px; padding: 0.55rem 1rem;
+    font-size: 0.75rem; font-weight: 700; color: #b91c1c;
+  }
+
+  /* ── Split layout ── */
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 720px) { .detail-grid { grid-template-columns: 1fr; } }
+
+  /* ── Cards ── */
+  .detail-card {
+    background: #fff; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+    display: flex; flex-direction: column;
+  }
+  .detail-card-header {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.85rem 1.2rem; border-bottom: 1px solid #f1f5f9;
+    font-size: 0.75rem; font-weight: 600; color: #334155;
+  }
+  .detail-card-body { padding: 1.1rem 1.2rem; flex: 1; }
+
+  .campo-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.78rem; padding: 0.5rem 0; border-bottom: 1px solid #f8fafc;
+  }
+  .campo-row:last-child { border-bottom: none; }
+  .campo-label { color: #64748b; font-weight: 500; }
+  .campo-valor { color: #0f172a; font-weight: 600; text-align: right; }
 
   .texto-box {
-    background: #f8f9fb;
-    border-radius: 6px;
-    padding: 1rem;
-    font-size: .88rem;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 240px;
-    overflow-y: auto;
+    background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 8px;
+    padding: 1rem; font-size: 0.8rem; line-height: 1.65; white-space: pre-wrap;
+    word-break: break-word; max-height: 220px; overflow-y: auto; color: #334155;
   }
+  .texto-box::-webkit-scrollbar { width: 4px; }
+  .texto-box::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 2px; }
+  .texto-box::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
+
   .resumo-box {
-    background: #e8f0fe;
-    border-left: 4px solid #0d3b6e;
-    border-radius: 4px;
-    padding: .8rem 1rem;
-    font-size: .88rem;
-    line-height: 1.6;
-    color: #1a1a2e;
-    margin-bottom: 1rem;
+    background: rgba(37,99,235,0.04); border: 1px solid rgba(37,99,235,0.15);
+    border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.78rem; line-height: 1.6;
+    color: #1e3a5f; margin-bottom: 0.85rem;
   }
   .acoes-box {
-    background: #fff8e1;
-    border-left: 4px solid #fd7e14;
-    border-radius: 4px;
-    padding: .8rem 1rem;
-    font-size: .88rem;
-    line-height: 1.6;
-    color: #5a3e00;
-  }
-  .critica-box {
-    background: #fde8e8;
-    border-left: 4px solid #6f0000;
-    border-radius: 4px;
-    padding: .8rem 1rem;
-    font-size: .88rem;
-    color: #6f0000;
-    font-weight: 600;
-    margin-bottom: 1rem;
+    background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.78rem; line-height: 1.6; color: #78350f;
   }
 
-
-  .status-form { display: flex; gap: .6rem; align-items: center; margin-top: 1rem; flex-wrap: wrap; }
-  .status-form select { padding: .45rem .8rem; border: 1px solid #ddd; border-radius: 6px; font-size: .88rem; transition: border-color .2s; flex: 1; min-width: 140px; }
-  .status-form select:focus { outline: none; border-color: #0d3b6e; box-shadow: 0 0 0 3px rgba(13,59,110,.1); }
-
-  .detalhe-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
-
-  @media (max-width: 600px) {
-    .card { padding: 1.1rem; }
-    .campo-row { flex-direction: column; gap: 0.2rem; }
-    .campo-row .valor { text-align: left; }
-    .detalhe-header { flex-direction: column; }
-    .critica-box { font-size: .82rem; margin: 0; }
+  .section-label {
+    font-size: 0.65rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 0.45rem;
   }
+
+  /* ── Status form ── */
+  .status-form {
+    display: flex; gap: 0.5rem; align-items: center; margin-top: 1rem; flex-wrap: wrap;
+    padding-top: 0.85rem; border-top: 1px solid #f1f5f9;
+  }
+  .status-form select {
+    padding: 0.42rem 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px;
+    font-size: 0.78rem; color: #334155; background: #f8fafc; outline: none;
+    flex: 1; min-width: 140px; transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .status-form select:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background: #fff; }
 </style>
 
-<a href="/" class="voltar">← Voltar para a lista</a>
-
-<div class="detalhe-header">
+<div class="detail-root">
+  <!-- Breadcrumb -->
   <div>
-    <h2 style="font-size:1.1rem; color:#0d3b6e;">{{ rec.id }}</h2>
-    <span style="font-size:.82rem; color:#888;">Registrada em {{ rec.data_reclamacao.strftime('%d/%m/%Y') if rec.data_reclamacao else '—' }}</span>
+    <a href="/" class="back-link">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar para a lista
+    </a>
   </div>
-  {% if rec.urgencia == "Crítica" %}
-    <div class="critica-box" style="margin:0; font-size:.9rem;">⚠️ URGÊNCIA CRÍTICA — Ação imediata requerida</div>
-  {% endif %}
-</div>
 
-<div class="grid">
-  <!-- Coluna esquerda: dados da reclamação -->
-  <div>
-    <div class="card" style="margin-bottom:1.5rem;">
-      <h3>Dados da Reclamação</h3>
-      <div class="campo-row"><span class="label">Canal</span><span class="valor">{{ rec.canal }}</span></div>
-      <div class="campo-row"><span class="label">Produto</span><span class="valor">{{ rec.produto or '—' }}</span></div>
-      <div class="campo-row">
-        <span class="label">Status</span>
-        <span class="valor">
-          {% set stcls = {"Aberta":"badge-aberta","Em análise":"badge-analise","Resolvida":"badge-resolvida"} %}
-          <span class="badge {{ stcls.get(rec.status,'badge-neutro') }}">{{ rec.status }}</span>
-        </span>
+  <!-- Header -->
+  <div class="detail-header">
+    <div>
+      <p class="detail-id">{{ rec.id }}</p>
+      <p class="detail-date">Registrada em {{ rec.data_reclamacao.strftime('%d/%m/%Y') if rec.data_reclamacao else '—' }}</p>
+    </div>
+    {% if rec.urgencia == "Crítica" %}
+    <div class="critica-banner">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      URGÊNCIA CRÍTICA — Ação imediata requerida
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Grid -->
+  <div class="detail-grid">
+
+    <!-- Coluna esquerda -->
+    <div style="display:flex; flex-direction:column; gap:1rem;">
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <svg width="13" height="13" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Dados da Reclamação
+        </div>
+        <div class="detail-card-body">
+          <div class="campo-row">
+            <span class="campo-label">Canal</span>
+            <span class="campo-valor">
+              {% set canal_pill = {'Banco Central':'badge-canal-bacen','Ouvidoria':'badge-canal-ouvidoria','Redes Sociais':'badge-canal-redes','SAC':'badge-canal-sac','Reclame Aqui':'badge-canal-reclame'} %}
+              <span class="badge {{ canal_pill.get(rec.canal, 'badge-neutro') }}">{{ rec.canal }}</span>
+            </span>
+          </div>
+          <div class="campo-row">
+            <span class="campo-label">Produto</span>
+            <span class="campo-valor">{{ rec.produto or '—' }}</span>
+          </div>
+          <div class="campo-row">
+            <span class="campo-label">Status</span>
+            <span class="campo-valor">
+              {% set stcls = {"Aberta":"badge-aberta","Em análise":"badge-analise","Resolvida":"badge-resolvida"} %}
+              <span class="badge {{ stcls.get(rec.status,'badge-neutro') }}">{{ rec.status }}</span>
+            </span>
+          </div>
+
+          <form method="post" action="/reclamacao/{{ rec.id }}/status" class="status-form">
+            <select name="status">
+              <option value="Aberta" {% if rec.status == "Aberta" %}selected{% endif %}>Aberta</option>
+              <option value="Em análise" {% if rec.status == "Em análise" %}selected{% endif %}>Em análise</option>
+              <option value="Resolvida" {% if rec.status == "Resolvida" %}selected{% endif %}>Resolvida</option>
+            </select>
+            <button type="submit" class="btn btn-secondary btn-sm">Atualizar status</button>
+          </form>
+        </div>
       </div>
 
-      <form method="post" action="/reclamacao/{{ rec.id }}/status" class="status-form">
-        <select name="status">
-          <option value="Aberta" {% if rec.status == "Aberta" %}selected{% endif %}>Aberta</option>
-          <option value="Em análise" {% if rec.status == "Em análise" %}selected{% endif %}>Em análise</option>
-          <option value="Resolvida" {% if rec.status == "Resolvida" %}selected{% endif %}>Resolvida</option>
-        </select>
-        <button type="submit" class="btn btn-secondary btn-sm">Atualizar status</button>
-      </form>
+      <div class="detail-card">
+        <div class="detail-card-header">
+          <svg width="13" height="13" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Texto Original do Cliente
+        </div>
+        <div class="detail-card-body">
+          <div class="texto-box">{{ rec.texto_reclamacao }}</div>
+        </div>
+      </div>
     </div>
 
-    <div class="card">
-      <h3>Texto Original</h3>
-      <div class="texto-box">{{ rec.texto_reclamacao }}</div>
-    </div>
-  </div>
+    <!-- Coluna direita -->
+    <div>
+      <div class="detail-card">
+        <div class="detail-card-header" style="background: linear-gradient(90deg, rgba(124,58,237,0.04) 0%, transparent 100%);">
+          <svg width="13" height="13" fill="none" stroke="#8b5cf6" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          Classificação do Agente (POL-SAC-001)
+        </div>
+        <div class="detail-card-body">
+          {% if rec.urgencia %}
+            {% set ucls = {"Baixa":"badge-baixa","Média":"badge-media","Alta":"badge-alta","Crítica":"badge-critica"} %}
+            {% set scls = {"Positivo":"badge-positivo","Neutro":"badge-neutro","Negativo":"badge-negativo","Crítico":"badge-critico"} %}
 
-  <!-- Coluna direita: classificação do agente -->
-  <div>
-    <div class="card">
-      <h3>🤖 Classificação do Agente (POL-SAC-001)</h3>
+            <div class="campo-row">
+              <span class="campo-label">Categoria</span>
+              <span class="campo-valor">{{ rec.categoria or '—' }}</span>
+            </div>
+            <div class="campo-row">
+              <span class="campo-label">Produto identificado</span>
+              <span class="campo-valor">{{ rec.produto or 'Não identificado' }}</span>
+            </div>
+            <div class="campo-row">
+              <span class="campo-label">Sentimento</span>
+              <span class="campo-valor">
+                <span class="badge {{ scls.get(rec.sentimento,'badge-neutro') }}">{{ rec.sentimento or '—' }}</span>
+              </span>
+            </div>
+            <div class="campo-row">
+              <span class="campo-label">Urgência</span>
+              <span class="campo-valor">
+                <span class="badge {{ ucls.get(rec.urgencia,'badge-neutro') }}">
+                  <span class="badge-dot"></span>{{ rec.urgencia }}
+                </span>
+              </span>
+            </div>
+            <div class="campo-row">
+              <span class="campo-label">Prazo de resposta</span>
+              <span class="campo-valor" style="color:#dc2626;">{{ rec.prazo_resposta or '—' }}</span>
+            </div>
+            <div class="campo-row">
+              <span class="campo-label">Responsável</span>
+              <span class="campo-valor">{{ rec.responsavel or '—' }}</span>
+            </div>
 
-      {% if rec.urgencia %}
-        {% set ucls = {"Baixa":"badge-baixa","Média":"badge-media","Alta":"badge-alta","Crítica":"badge-critica"} %}
-        {% set scls = {"Positivo":"badge-positivo","Neutro":"badge-neutro","Negativo":"badge-negativo","Crítico":"badge-critico"} %}
-        {% set stcls = {"Aberta":"badge-aberta","Em análise":"badge-analise","Resolvida":"badge-resolvida"} %}
+            <div style="margin-top:1rem;">
+              <p class="section-label">Resumo padronizado (LGPD)</p>
+              <div class="resumo-box">{{ rec.resumo or '—' }}</div>
+            </div>
 
-        <div class="campo-row">
-          <span class="label">Categoria</span>
-          <span class="valor"><strong>{{ rec.categoria or '—' }}</strong></span>
+            <div>
+              <p class="section-label">Ações imediatas recomendadas</p>
+              <div class="acoes-box">{{ rec.acoes_imediatas or '—' }}</div>
+            </div>
+          {% else %}
+            <p style="color:#94a3b8; font-size:0.8rem;">Reclamação ainda não classificada pelo agente.</p>
+          {% endif %}
         </div>
-        <div class="campo-row">
-          <span class="label">Produto identificado</span>
-          <span class="valor">{{ rec.produto or 'Não identificado' }}</span>
-        </div>
-        <div class="campo-row">
-          <span class="label">Sentimento</span>
-          <span class="valor">
-            <span class="badge {{ scls.get(rec.sentimento,'badge-neutro') }}">{{ rec.sentimento or '—' }}</span>
-          </span>
-        </div>
-        <div class="campo-row">
-          <span class="label">Urgência</span>
-          <span class="valor">
-            <span class="badge {{ ucls.get(rec.urgencia,'badge-neutro') }}">{{ rec.urgencia }}</span>
-          </span>
-        </div>
-        <div class="campo-row">
-          <span class="label">Prazo de resposta</span>
-          <span class="valor" style="font-weight:600; color:#dc3545;">{{ rec.prazo_resposta or '—' }}</span>
-        </div>
-        <div class="campo-row">
-          <span class="label">Responsável</span>
-          <span class="valor">{{ rec.responsavel or '—' }}</span>
-        </div>
-
-        <div style="margin-top:1rem;">
-          <p style="font-size:.82rem; font-weight:600; color:#444; margin-bottom:.4rem;">Resumo padronizado (LGPD)</p>
-          <div class="resumo-box">{{ rec.resumo or '—' }}</div>
-        </div>
-
-        <div>
-          <p style="font-size:.82rem; font-weight:600; color:#444; margin-bottom:.4rem;">Ações imediatas recomendadas</p>
-          <div class="acoes-box">{{ rec.acoes_imediatas or '—' }}</div>
-        </div>
-
-      {% else %}
-        <p style="color:#888; font-size:.88rem;">Reclamação ainda não classificada pelo agente.</p>
-      {% endif %}
+      </div>
     </div>
   </div>
 </div>

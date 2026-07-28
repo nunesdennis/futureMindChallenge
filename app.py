@@ -21,6 +21,11 @@ CANAIS = ["SAC", "Ouvidoria", "Banco Central", "Redes Sociais", "Reclame Aqui"]
 PRODUTOS = ["Cartão de Crédito", "Conta Corrente", "Empréstimo", "Investimentos", "Seguros"]
 STATUS_OPCOES = ["Aberta", "Em análise", "Resolvida"]
 
+@app.context_processor
+def inject_modal_vars():
+    return {"canais_modal": CANAIS, "produtos_modal": PRODUTOS}
+
+
 URGENCIA_COR = {
     "Baixa": "#28a745",
     "Média": "#fd7e14",
@@ -106,7 +111,11 @@ def nova():
         multiplas_ocorrencias = request.form.get("primeira_ocorrencia") == "nao"
 
         try:
-            resultado = classificar(texto, canal, produto or None, multiplas_ocorrencias=multiplas_ocorrencias)
+            resultado = classificar(
+                texto, canal, produto or None,
+                multiplas_ocorrencias=multiplas_ocorrencias,
+                data_ocorrencia=data_str or None,
+            )
             rec.categoria = resultado.get("categoria")
             rec.sentimento = resultado.get("sentimento")
             rec.urgencia = resultado.get("urgencia")

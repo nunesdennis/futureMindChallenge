@@ -65,7 +65,13 @@ def _sanitize_resumo(texto: str) -> str:
     return texto
 
 
-def classificar(texto_reclamacao: str, canal: str, produto: Optional[str] = None, multiplas_ocorrencias: bool = False) -> dict:
+def classificar(
+    texto_reclamacao: str,
+    canal: str,
+    produto: Optional[str] = None,
+    multiplas_ocorrencias: bool = False,
+    data_ocorrencia: Optional[str] = None,
+) -> dict:
     """
     Classifica uma reclamação usando a Claude API, seguindo as regras da POL-SAC-001.
 
@@ -75,14 +81,15 @@ def classificar(texto_reclamacao: str, canal: str, produto: Optional[str] = None
     """
     prompt_usuario = f"""Canal de origem: {canal}
 Produto informado pelo cliente: {produto or "Não informado"}
-Múltiplas ocorrências relatadas pelo cliente: {"Sim — o cliente informou que já ocorreu mais de uma vez" if multiplas_ocorrencias else "Não informado"}
+Primeira ocorrência: {"Não — o cliente informou que já ocorreu mais de uma vez" if multiplas_ocorrencias else "Sim (ou não informado)"}
+Data da ocorrência: {data_ocorrencia or "Não informada"}
 
 Texto da reclamação:
 {texto_reclamacao}"""
 
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
-        return _classificar_fallback(texto_reclamacao, canal, produto, multiplas_ocorrencias)
+        return _classificar_fallback(texto_reclamacao, canal, produto, multiplas_ocorrencias, data_ocorrencia)
 
     try:
         import httpx
@@ -141,10 +148,10 @@ Texto da reclamação:
         import traceback
         print("ERRO ao classificar via API Claude:", e)
         traceback.print_exc()
-        return _classificar_fallback(texto_reclamacao, canal, produto, multiplas_ocorrencias)
+        return _classificar_fallback(texto_reclamacao, canal, produto, multiplas_ocorrencias, data_ocorrencia)
 
 
-def _classificar_fallback(texto: str, canal: str, produto: Optional[str], multiplas_ocorrencias: bool = False) -> dict:
+def _classificar_fallback(texto: str, canal: str, produto: Optional[str], multiplas_ocorrencias: bool = False, data_ocorrencia: Optional[str] = None) -> dict:
     """
     Classificação por regras locais quando a API não está disponível.
     Segue os mesmos critérios da POL-SAC-001.
@@ -205,14 +212,18 @@ def _classificar_fallback(texto: str, canal: str, produto: Optional[str], multip
         categoria = "Outros"
 
     # --- Sentimento ---
-    if any(p in texto_lower for p in ["fraude", "processo", "advogado", "ação judicial", "desesperado", "roubado", "absurdo", "vergonha"]):
+    if any(p in texto_lower for p in ["fraude", "processo", "advogado", "ação judicial", "desesperado", "roubado", "absurdo", "vergonha", "inadmissível", "escândalo"]):
         sentimento = "Crítico"
-    elif any(p in texto_lower for p in ["insatisfeito", "decepcionado", "péssimo", "horrível", "nunca mais", "indignado"]):
+    elif any(p in texto_lower for p in ["insatisfeito", "decepcionado", "péssimo", "horrível", "nunca mais", "indignado", "absurdo", "revoltado", "ninguém resolve", "cansado"]):
         sentimento = "Negativo"
-    elif any(p in texto_lower for p in ["dúvida", "gostaria de saber", "poderia me informar"]):
+    elif any(p in texto_lower for p in ["obrigado", "agradecido", "excelente", "ótimo", "parabéns", "elogio", "satisfeito", "muito bom", "adorei", "recomendo"]):
+        sentimento = "Positivo"
+    elif any(p in texto_lower for p in ["dúvida", "gostaria de saber", "poderia me informar", "gostaria de entender", "queria saber", "informação", "esclarecer"]):
         sentimento = "Neutro"
-    else:
+    elif any(p in texto_lower for p in ["reclamação", "problema", "erro", "falha", "não funciona", "cobrado", "cobrança"]):
         sentimento = "Negativo"
+    else:
+        sentimento = "Neutro"
 
     # --- Produto identificado ---
     produto_id = produto or "Não Identificado"
@@ -227,9 +238,15 @@ def _classificar_fallback(texto: str, canal: str, produto: Optional[str], multip
     }
     responsavel = responsaveis.get(produto_id, "Central de Atendimento")
 
-    resumo = f"Reclamação recebida via {canal} classificada como {categoria}. " \
-             f"Urgência {urgencia} aplicada conforme POL-SAC-001. " \
-             f"Encaminhar para {responsavel} no prazo de {prazo}."
+    reincidencia_info = "Trata-se de ocorrência reincidente, o que eleva a prioridade de atendimento. " if multiplas_ocorrencias else ""
+    data_info = f"Data da ocorrência: {data_ocorrencia}. " if data_ocorrencia else ""
+    resumo = (
+        f"Reclamação recebida via {canal} classificada como {categoria}. "
+        f"{data_info}"
+        f"{reincidencia_info}"
+        f"Urgência {urgencia} aplicada conforme POL-SAC-001. "
+        f"Encaminhar para {responsavel} no prazo de {prazo}."
+    )
 
     return {
         "categoria": categoria,
