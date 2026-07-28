@@ -94,7 +94,7 @@ Texto da reclamação:
             )
         file_id = arquivo.id
 
-        message = client.messages.create(
+        message = client.beta.messages.create(
             model="claude-opus-4-8",
             max_tokens=1024,
             system=SYSTEM_PROMPT,
@@ -136,7 +136,10 @@ Texto da reclamação:
         resultado["resumo"] = _sanitize_resumo(resultado.get("resumo", ""))
         return resultado
 
-    except (anthropic.APIError, json.JSONDecodeError, KeyError):
+    except Exception as e:
+        import traceback
+        print("ERRO ao classificar via API Claude:", e)
+        traceback.print_exc()
         return _classificar_fallback(texto_reclamacao, canal, produto, multiplas_ocorrencias)
 
 
