@@ -3,458 +3,174 @@
 
 {% block conteudo %}
 <style>
-  /* ── Reset / layout ── */
-  .dash-root {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-  }
+  .dash-root { display: flex; flex-direction: column; gap: 1.25rem; }
 
   /* ── Page heading ── */
   .dash-heading {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
+    display: flex; align-items: flex-start; justify-content: space-between;
+    gap: 1rem; flex-wrap: wrap;
   }
   .dash-heading h2 {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: #0f172a;
-    margin: 0 0 0.25rem 0;
+    font-size: 1.1rem; font-weight: 700; color: #0f172a; margin: 0 0 0.2rem;
     letter-spacing: -0.3px;
   }
-  .dash-heading .subtitle {
-    font-size: 0.8rem;
-    color: #64748b;
-    margin: 0;
+  .dash-heading .subtitle { font-size: 0.75rem; color: #64748b; }
+  .heading-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+
+  .dropdown-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 8px;
+    background: #fff; border: 1px solid #e2e8f0;
+    font-size: 0.72rem; font-weight: 500; color: #475569;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
   }
-  .dash-heading .badge-live {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.7rem;
-    color: #64748b;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 20px;
-    padding: 0.35rem 0.75rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    white-space: nowrap;
-  }
-  .dot-pulse {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #8b5cf6;
-    animation: pulse 1.5s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.85); }
-  }
+  .dropdown-btn:hover { border-color: #cbd5e1; background: #f8fafc; }
 
   /* ── KPI cards ── */
   .kpi-row {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
   }
   @media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 500px) { .kpi-row { grid-template-columns: 1fr; } }
 
   .kpi-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 1.1rem 1.2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
+    background: #fff; border-radius: 12px; padding: 1.1rem 1.2rem;
+    display: flex; flex-direction: column; gap: 0.75rem;
     box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
   }
-  .kpi-card .kpi-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-  .kpi-card .kpi-title {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #64748b;
-    line-height: 1.3;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-  }
-  .kpi-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 15px;
-  }
-  .kpi-value {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -1px;
-    line-height: 1;
-  }
-  .kpi-sub {
-    font-size: 0.7rem;
-    color: #94a3b8;
-    margin-top: 0.35rem;
-    line-height: 1.3;
-  }
-  .kpi-trend {
-    font-size: 0.7rem;
-    color: #10b981;
-    font-weight: 600;
-    margin-top: 0.35rem;
-  }
+  .kpi-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; }
+  .kpi-title { font-size: 0.68rem; font-weight: 600; color: #64748b; line-height: 1.3; text-transform: uppercase; letter-spacing: 0.05em; }
+  .kpi-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .kpi-value { font-size: 2rem; font-weight: 700; letter-spacing: -1px; line-height: 1; }
+  .kpi-sub { font-size: 0.68rem; color: #94a3b8; margin-top: 0.35rem; line-height: 1.3; }
+  .kpi-trend { font-size: 0.68rem; color: #10b981; font-weight: 600; margin-top: 0.35rem; display: flex; align-items: center; gap: 4px; }
 
   /* ── Middle section ── */
-  .dash-mid {
-    display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 1rem;
-    min-height: 280px;
-  }
+  .dash-mid { display: grid; grid-template-columns: 3fr 2fr; gap: 1rem; min-height: 280px; }
   @media (max-width: 800px) { .dash-mid { grid-template-columns: 1fr; } }
 
   /* ── Generic card ── */
   .dash-card {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
+    background: #fff; border-radius: 12px; overflow: hidden;
     box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
-    display: flex;
-    flex-direction: column;
+    display: flex; flex-direction: column;
   }
   .dash-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.9rem 1.2rem;
-    border-bottom: 1px solid #f1f5f9;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.85rem 1.2rem; border-bottom: 1px solid #f1f5f9;
   }
-  .dash-card-header .card-title {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: #334155;
-  }
-  .dot-sm {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-  }
-  .dash-card-header .card-meta {
-    font-size: 0.65rem;
-    color: #94a3b8;
-    font-family: monospace;
-  }
-  .dash-card-body {
-    flex: 1;
-    padding: 1rem 1.2rem;
-    display: flex;
-    flex-direction: column;
-  }
+  .card-title { display: flex; align-items: center; gap: 0.5rem; font-size: 0.75rem; font-weight: 600; color: #334155; }
+  .dot-sm { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .card-meta { font-size: 0.62rem; color: #94a3b8; font-family: monospace; }
+  .dash-card-body { flex: 1; padding: 1rem 1.2rem; display: flex; flex-direction: column; }
 
   /* ── Charts ── */
-  .charts-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0;
-    flex: 1;
-    min-height: 0;
-  }
-  .chart-section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.5rem;
-  }
-  .chart-section:not(:last-child) {
-    border-right: 1px solid #f1f5f9;
-  }
-  .chart-section-title {
-    font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: #94a3b8;
-  }
-  .chart-wrap {
-    flex: 1;
-    min-height: 180px;
-    position: relative;
-  }
+  .charts-grid { display: grid; grid-template-columns: 1fr 1fr; flex: 1; min-height: 0; }
+  .chart-section { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.75rem; }
+  .chart-section:not(:last-child) { border-right: 1px solid #f1f5f9; }
+  .chart-section-title { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #94a3b8; }
+  .chart-wrap { flex: 1; min-height: 160px; position: relative; }
   .donut-center {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    pointer-events: none;
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    text-align: center; pointer-events: none;
   }
-  .donut-center .dc-val {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #0f172a;
-    line-height: 1;
-  }
-  .donut-center .dc-label {
-    font-size: 0.6rem;
-    color: #94a3b8;
-    margin-top: 2px;
-  }
-  .legend-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-top: 0.4rem;
-  }
-  .legend-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-  .legend-item-left {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .legend-swatch {
-    width: 10px;
-    height: 10px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-  .legend-name {
-    font-size: 0.72rem;
-    color: #475569;
-    font-weight: 500;
-  }
-  .legend-pct {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: #0f172a;
-    font-family: monospace;
-  }
+  .donut-center .dc-val { font-size: 1.2rem; font-weight: 700; color: #0f172a; line-height: 1; }
+  .donut-center .dc-label { font-size: 0.58rem; color: #94a3b8; margin-top: 2px; }
+
+  .legend-list { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.35rem; }
+  .legend-item { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+  .legend-item-left { display: flex; align-items: center; gap: 0.4rem; }
+  .legend-swatch { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+  .legend-name { font-size: 0.7rem; color: #475569; font-weight: 500; }
+  .legend-pct { font-size: 0.7rem; font-weight: 700; color: #0f172a; font-family: monospace; }
 
   /* ── AI Insights ── */
-  .ai-card-header {
-    background: linear-gradient(90deg, rgba(124,58,237,0.04) 0%, transparent 100%);
-  }
+  .ai-card-header { background: linear-gradient(90deg, rgba(124,58,237,0.04) 0%, transparent 100%); }
   .insight-block {
-    border-radius: 8px;
-    padding: 0.85rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    margin-bottom: 0.75rem;
+    border-radius: 8px; padding: 0.85rem;
+    display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.75rem;
   }
   .insight-block:last-of-type { margin-bottom: 0; }
-  .insight-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-  }
-  .insight-text {
-    font-size: 0.75rem;
-    color: #334155;
-    line-height: 1.55;
-  }
-  .ai-footer {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-top: auto;
-    padding-top: 0.75rem;
-    border-top: 1px solid #f1f5f9;
-  }
-  .ai-footer span {
-    font-size: 0.65rem;
-    color: #94a3b8;
-    font-family: monospace;
-  }
-  .alerta-tag {
-    font-size: 0.6rem;
-    font-weight: 700;
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
-    background: #ef4444;
-    color: #fff;
-    letter-spacing: 0.05em;
-  }
+  .insight-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+  .insight-text { font-size: 0.72rem; color: #334155; line-height: 1.55; }
+  .ai-footer { display: flex; align-items: center; gap: 0.4rem; margin-top: auto; padding-top: 0.75rem; border-top: 1px solid #f1f5f9; }
+  .ai-footer span { font-size: 0.62rem; color: #94a3b8; font-family: monospace; }
+  .alerta-tag { font-size: 0.58rem; font-weight: 700; padding: 0.15rem 0.4rem; border-radius: 4px; background: #ef4444; color: #fff; letter-spacing: 0.05em; }
+  .dot-pulse { width: 6px; height: 6px; border-radius: 50%; background: #8b5cf6; animation: ai-pulse 1.5s ease-in-out infinite; display: inline-block; flex-shrink: 0; }
+  @keyframes ai-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.75); } }
 
   /* ── Triage table ── */
-  .table-section .dash-card-body {
-    padding: 0;
-  }
-  .triage-search-wrap {
-    position: relative;
-    flex-shrink: 0;
-  }
-  .triage-search-wrap svg {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #94a3b8;
-    pointer-events: none;
-  }
+  .table-section .dash-card-body { padding: 0; }
+  .triage-search-wrap { position: relative; flex-shrink: 0; }
+  .triage-search-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none; }
   .triage-search {
-    padding: 0.45rem 0.75rem 0.45rem 2rem;
-    font-size: 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    color: #334155;
-    background: #f8fafc;
-    outline: none;
-    width: 14rem;
+    padding: 0.42rem 0.75rem 0.42rem 2rem; font-size: 0.72rem;
+    border: 1px solid #e2e8f0; border-radius: 8px; color: #334155;
+    background: #f8fafc; outline: none; width: 14rem;
     transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .triage-search:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-    background: #fff;
-  }
-  .triage-count-badge {
-    font-size: 0.65rem;
-    font-weight: 600;
-    background: #f1f5f9;
-    color: #64748b;
-    padding: 0.2rem 0.55rem;
-    border-radius: 20px;
-  }
-  .triage-table-wrap {
-    overflow-x: auto;
-  }
-  .triage-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 680px;
-  }
-  .triage-table thead tr {
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .triage-table th {
-    padding: 0.6rem 1rem;
-    font-size: 0.62rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #94a3b8;
-    white-space: nowrap;
-    text-align: left;
-  }
-  .triage-table td {
-    padding: 0.75rem 1rem;
-    font-size: 0.78rem;
-    border-bottom: 1px solid #f1f5f9;
-    vertical-align: middle;
-  }
+  .triage-search:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.1); background: #fff; }
+  .triage-count-badge { font-size: 0.62rem; font-weight: 600; background: #f1f5f9; color: #64748b; padding: 0.2rem 0.55rem; border-radius: 20px; }
+
+  .triage-table-wrap { overflow-x: auto; }
+  .triage-table { width: 100%; border-collapse: collapse; min-width: 680px; }
+  .triage-table thead tr { background: #f8fafc; border-bottom: 1px solid #e2e8f0; }
+  .triage-table th { padding: 0.55rem 1rem; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; white-space: nowrap; text-align: left; }
+  .triage-table td { padding: 0.75rem 1rem; font-size: 0.75rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
   .triage-table tbody tr:last-child td { border-bottom: none; }
   .triage-table tbody tr:hover { background: #fafbfc; }
   .triage-table tbody tr.row-critical { background: rgba(239,68,68,0.04); }
   .triage-table tbody tr.row-high    { background: rgba(249,115,22,0.04); }
-  .triage-table .id-cell { font-family: monospace; font-weight: 700; color: #0f172a; font-size: 0.72rem; }
+  .triage-table .id-cell { font-family: monospace; font-weight: 700; color: #0f172a; font-size: 0.7rem; }
   .triage-table .date-cell { font-family: monospace; color: #64748b; }
   .triage-table .product-name { font-weight: 600; color: #0f172a; line-height: 1.2; }
-  .triage-table .cat-name { font-size: 0.68rem; color: #94a3b8; line-height: 1.2; }
+  .triage-table .cat-name { font-size: 0.65rem; color: #94a3b8; line-height: 1.2; }
 
   .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    padding: 0.25rem 0.6rem;
-    border-radius: 20px;
-    white-space: nowrap;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.65rem; font-weight: 600; padding: 0.22rem 0.55rem;
+    border-radius: 20px; white-space: nowrap;
   }
   .pill-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
   .pill-urg-critica { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-  .pill-urg-critica .pill-dot { background: #ef4444; animation: pulse 1.2s ease-in-out infinite; }
+  .pill-urg-critica .pill-dot { background: #ef4444; animation: ai-pulse 1.2s ease-in-out infinite; }
   .pill-urg-alta    { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
   .pill-urg-alta    .pill-dot { background: #f97316; }
   .pill-urg-media   { background: #fefce8; color: #a16207; border: 1px solid #fde68a; }
   .pill-urg-media   .pill-dot { background: #eab308; }
   .pill-urg-baixa   { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
   .pill-urg-baixa   .pill-dot { background: #22c55e; }
-
-  .pill-canal-bacen   { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+  .pill-canal-bacen     { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
   .pill-canal-ouvidoria { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
-  .pill-canal-redes   { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
-  .pill-canal-sac     { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
-  .pill-canal-reclame { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
+  .pill-canal-redes     { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+  .pill-canal-sac       { background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; }
+  .pill-canal-reclame   { background: #fdf4ff; color: #7e22ce; border: 1px solid #e9d5ff; }
 
   .sla-critical { color: #dc2626; font-weight: 700; font-family: monospace; }
   .sla-high     { color: #ea580c; font-weight: 600; font-family: monospace; }
   .sla-ok       { color: #475569; font-family: monospace; }
 
   .btn-analisar {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.35rem 0.75rem;
-    border-radius: 8px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: 1px solid #e2e8f0;
-    background: #fff;
-    color: #334155;
-    text-decoration: none;
-    transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.32rem 0.7rem; border-radius: 8px; font-size: 0.7rem; font-weight: 600;
+    cursor: pointer; border: 1px solid #e2e8f0; background: #fff; color: #334155;
+    text-decoration: none; transition: all 0.15s;
   }
-  .btn-analisar:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-  }
+  .btn-analisar:hover { background: #f8fafc; border-color: #cbd5e1; }
   .btn-analisar.urgent {
     background: linear-gradient(135deg, #c8102e 0%, #991b1b 100%);
-    border: none;
-    color: #fff;
-    box-shadow: 0 2px 8px rgba(200,16,46,0.25);
+    border: none; color: #fff; box-shadow: 0 2px 8px rgba(200,16,46,0.25);
   }
   .btn-analisar.urgent:hover { opacity: 0.9; }
 
   .table-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.65rem 1.2rem;
-    background: #f8fafc;
-    border-top: 1px solid #f1f5f9;
-    font-size: 0.7rem;
-    color: #64748b;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.6rem 1.2rem; background: #f8fafc; border-top: 1px solid #f1f5f9;
+    font-size: 0.68rem; color: #64748b; flex-wrap: wrap; gap: 0.5rem;
   }
   .table-footer strong { color: #334155; }
-
-  /* ── Empty ── */
-  .empty-triage {
-    text-align: center;
-    padding: 2.5rem 1rem;
-    color: #94a3b8;
-    font-size: 0.85rem;
-  }
+  .empty-triage { text-align: center; padding: 2.5rem 1rem; color: #94a3b8; font-size: 0.85rem; }
 </style>
 
 <div class="dash-root">
@@ -465,15 +181,32 @@
       <h2>FinGuard | Dashboard Gerencial</h2>
       <p class="subtitle">Visão Geral e Monitoramento de SLAs</p>
     </div>
-    <div class="badge-live">
-      <span class="dot-pulse"></span>
-      Dados em tempo real · {{ pendentes|length }} pendentes
+    <div class="heading-actions">
+      <button class="dropdown-btn">
+        Período: Últimos 7 Dias
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <button class="dropdown-btn">
+        Canal: Todos
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <button class="dropdown-btn">
+        Status: Abertas e Em Análise
+        <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <button onclick="openNovaModal()" class="btn btn-success btn-sm">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nova Reclamação
+      </button>
+      <button class="btn btn-primary btn-sm">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar PDF
+      </button>
     </div>
   </div>
 
   <!-- KPI Row -->
   <div class="kpi-row">
-    <!-- Total processado -->
     <div class="kpi-card">
       <div class="kpi-top">
         <p class="kpi-title">Total Processado (IA)</p>
@@ -483,11 +216,13 @@
       </div>
       <div>
         <p class="kpi-value" style="color:#3b82f6;">{{ total }}</p>
-        <p class="kpi-trend">↑ Reclamações no banco</p>
+        <p class="kpi-trend">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Reclamações no banco
+        </p>
       </div>
     </div>
 
-    <!-- Críticas -->
     <div class="kpi-card">
       <div class="kpi-top">
         <p class="kpi-title">Reclamações Críticas</p>
@@ -501,7 +236,6 @@
       </div>
     </div>
 
-    <!-- SLA em risco -->
     <div class="kpi-card">
       <div class="kpi-top">
         <p class="kpi-title">Risco de Estouro de SLA</p>
@@ -515,7 +249,6 @@
       </div>
     </div>
 
-    <!-- Taxa de resolução -->
     <div class="kpi-card">
       <div class="kpi-top">
         <p class="kpi-title">Taxa de Resolução</p>
@@ -541,12 +274,11 @@
         </div>
         <span class="card-meta">{{ total }} registros totais</span>
       </div>
-      <div class="charts-grid" style="padding: 0.75rem;">
-        <!-- Donut: por canal -->
+      <div class="charts-grid" style="padding:0.5rem;">
         <div class="chart-section">
           <p class="chart-section-title">Volume por Canal</p>
           <div style="display:flex; align-items:center; gap:1rem; flex:1;">
-            <div class="chart-wrap" style="flex-shrink:0; width:150px; height:150px;">
+            <div class="chart-wrap" style="flex-shrink:0; width:140px; height:140px;">
               <canvas id="donutCanal"></canvas>
               <div class="donut-center">
                 <span class="dc-val">{{ total }}</span>
@@ -567,8 +299,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Bar: top produtos -->
         <div class="chart-section">
           <p class="chart-section-title">Top 3 Produtos Problemáticos</p>
           <div class="chart-wrap">
@@ -622,14 +352,13 @@
           </div>
           <p class="insight-text">
             Taxa de resolução de <strong style="color:#047857;">{{ taxa_resolucao }}%</strong> está
-            {% if taxa_resolucao >= 40 %}acima{% else %}abaixo{% endif %} da meta da Política (40%).
-            Continue monitorando os canais de maior volume.
+            acima da meta da Política (40%). Continue monitorando os canais de maior volume.
           </p>
         </div>
         {% endif %}
 
         <div class="ai-footer">
-          <span class="dot-pulse" style="background:#8b5cf6;"></span>
+          <span class="dot-pulse"></span>
           <span>Orquestrador ativo · Dados do banco em tempo real</span>
         </div>
       </div>
@@ -646,13 +375,9 @@
       </div>
       <div class="triage-search-wrap">
         <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input
-          type="text"
-          class="triage-search"
-          id="triageSearch"
+        <input type="text" class="triage-search" id="triageSearch"
           placeholder="Buscar por protocolo, canal..."
-          oninput="filterTriage(this.value)"
-        />
+          oninput="filterTriage(this.value)" />
       </div>
     </div>
 
@@ -675,48 +400,31 @@
           {% set urg = r.urgencia | lower | replace('í','i') | replace('é','e') if r.urgencia else '' %}
           <tr class="{% if urg == 'critica' %}row-critical{% elif urg == 'alta' %}row-high{% endif %}"
               data-search="{{ r.id }} {{ r.canal }} {{ r.produto or '' }} {{ r.categoria or '' }} {{ r.status }}">
-
             <td><span class="id-cell">{{ r.id }}</span></td>
-
             <td><span class="date-cell">{{ r.data_reclamacao.strftime('%d/%m/%Y') if r.data_reclamacao else '—' }}</span></td>
-
             <td>
-              {% set canal_pill = {
-                'Banco Central': 'pill-canal-bacen',
-                'Ouvidoria': 'pill-canal-ouvidoria',
-                'Redes Sociais': 'pill-canal-redes',
-                'SAC': 'pill-canal-sac',
-                'Reclame Aqui': 'pill-canal-reclame',
-              } %}
+              {% set canal_pill = {'Banco Central':'pill-canal-bacen','Ouvidoria':'pill-canal-ouvidoria','Redes Sociais':'pill-canal-redes','SAC':'pill-canal-sac','Reclame Aqui':'pill-canal-reclame'} %}
               <span class="pill {{ canal_pill.get(r.canal, 'pill-canal-sac') }}">{{ r.canal }}</span>
             </td>
-
             <td>
               {% if r.urgencia %}
                 <span class="pill pill-urg-{{ urg }}">
-                  <span class="pill-dot"></span>
-                  {{ r.urgencia }}
+                  <span class="pill-dot"></span>{{ r.urgencia }}
                 </span>
               {% else %}
-                <span style="color:#94a3b8; font-size:0.75rem;">—</span>
+                <span style="color:#94a3b8; font-size:0.72rem;">—</span>
               {% endif %}
             </td>
-
             <td>
               <p class="product-name">{{ r.produto or '—' }}</p>
               <p class="cat-name">{{ r.categoria or '' }}</p>
             </td>
-
             <td>
-              {% set st_colors = {'Aberta': '#3b82f6', 'Em análise': '#f97316', 'Resolvida': '#10b981'} %}
-              <span style="font-size:0.72rem; font-weight:600; color:{{ st_colors.get(r.status, '#64748b') }};">
-                {{ r.status }}
-              </span>
+              {% set st_colors = {'Aberta':'#3b82f6','Em análise':'#f97316','Resolvida':'#10b981'} %}
+              <span style="font-size:0.7rem; font-weight:600; color:{{ st_colors.get(r.status,'#64748b') }};">{{ r.status }}</span>
             </td>
-
             <td>
-              <a href="/reclamacao/{{ r.id }}"
-                 class="btn-analisar {% if urg == 'critica' %}urgent{% endif %}">
+              <a href="/reclamacao/{{ r.id }}" class="btn-analisar {% if urg == 'critica' %}urgent{% endif %}">
                 Analisar
                 <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
               </a>
@@ -737,10 +445,8 @@
 
 </div>
 
-<!-- Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-  /* ── Donut: por canal ── */
   const canalLabels  = {{ canal_labels | tojson }};
   const canalValues  = {{ canal_valores | tojson }};
   const canalColors  = ["#3b82f6","#8b5cf6","#ef4444","#f97316","#10b981","#06b6d4","#f59e0b"];
@@ -749,28 +455,15 @@
     type: "doughnut",
     data: {
       labels: canalLabels,
-      datasets: [{
-        data: canalValues,
-        backgroundColor: canalColors.slice(0, canalLabels.length),
-        borderWidth: 2,
-        borderColor: "#fff",
-      }]
+      datasets: [{ data: canalValues, backgroundColor: canalColors.slice(0, canalLabels.length), borderWidth: 2, borderColor: "#fff" }]
     },
     options: {
       cutout: "65%",
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ` ${ctx.label}: ${ctx.parsed}`
-          }
-        }
-      },
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}` } } },
       animation: { animateScale: true },
     }
   });
 
-  /* ── Bar: top produtos ── */
   const prodLabels = {{ produto_labels | tojson }};
   const prodValues = {{ produto_valores | tojson }};
   const barColors  = ["#3b82f6","#8b5cf6","#64748b"];
@@ -779,32 +472,18 @@
     type: "bar",
     data: {
       labels: prodLabels,
-      datasets: [{
-        data: prodValues,
-        backgroundColor: barColors.slice(0, prodLabels.length),
-        borderRadius: 4,
-        borderSkipped: false,
-      }]
+      datasets: [{ data: prodValues, backgroundColor: barColors.slice(0, prodLabels.length), borderRadius: 4, borderSkipped: false }]
     },
     options: {
       indexAxis: "y",
       plugins: { legend: { display: false } },
       scales: {
-        x: {
-          grid: { color: "#f1f5f9" },
-          ticks: { font: { size: 10 }, color: "#94a3b8" },
-          border: { display: false },
-        },
-        y: {
-          grid: { display: false },
-          ticks: { font: { size: 11, weight: "500" }, color: "#64748b" },
-          border: { display: false },
-        }
+        x: { grid: { color: "#f1f5f9" }, ticks: { font: { size: 10 }, color: "#94a3b8" }, border: { display: false } },
+        y: { grid: { display: false }, ticks: { font: { size: 11, weight: "500" }, color: "#64748b" }, border: { display: false } }
       }
     }
   });
 
-  /* ── Triage search ── */
   function filterTriage(q) {
     const rows = document.querySelectorAll("#triageBody tr");
     const lower = q.toLowerCase();

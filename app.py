@@ -29,6 +29,11 @@ CANAIS = ["SAC", "Ouvidoria", "Banco Central", "Redes Sociais", "Reclame Aqui"]
 PRODUTOS = ["Cartão de Crédito", "Conta Corrente", "Empréstimo", "Investimentos", "Seguros"]
 STATUS_OPCOES = ["Aberta", "Em análise", "Resolvida"]
 
+@app.context_processor
+def inject_modal_vars():
+    return {"canais_modal": CANAIS, "produtos_modal": PRODUTOS}
+
+
 URGENCIA_COR = {
     "Baixa": "#28a745",
     "Média": "#fd7e14",

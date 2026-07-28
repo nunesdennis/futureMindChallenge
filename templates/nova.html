@@ -3,118 +3,175 @@
 
 {% block conteudo %}
 <style>
-  .card { background: #fff; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 6px rgba(0,0,0,.1); max-width: 760px; width: 100%; }
-  @media (max-width: 600px) {
-    .card { padding: 1.2rem; border-radius: 6px; }
-    .acoes { flex-direction: column; }
-    .acoes .btn { width: 100%; text-align: center; }
+  .form-wrapper {
+    max-width: 680px; width: 100%;
+    background: #fff; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
   }
-  .card h2 { font-size: 1.15rem; color: #0d3b6e; margin-bottom: 1.5rem; }
-  .campo { margin-bottom: 1.2rem; }
-  .campo label { display: block; font-size: .88rem; font-weight: 600; color: #444; margin-bottom: .4rem; }
-  .campo select, .campo textarea, .campo input[type="date"] {
-    width: 100%;
-    padding: .6rem .9rem;
-    border: 1px solid #ddd;
-    border-radius: 6px;
-    font-size: .92rem;
-    font-family: inherit;
-    transition: all .2s;
+
+  .form-header {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 1.2rem 1.5rem; border-bottom: 1px solid #f1f5f9;
+    background: linear-gradient(90deg, rgba(37,99,235,0.04) 0%, transparent 100%);
   }
-  .campo select:focus, .campo textarea:focus, .campo input[type="date"]:focus {
-    outline: none;
-    border-color: #0d3b6e;
-    box-shadow: 0 0 0 3px rgba(13,59,110,.1);
-    background-color: #f8fafc;
+  .form-header-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #1a2744 0%, #2563eb 100%);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
-  .campo textarea { resize: vertical; min-height: 140px; }
-  .campo .hint { font-size: .78rem; color: #888; margin-top: .3rem; }
-  .acoes { display: flex; gap: 1rem; margin-top: 2rem; align-items: center; flex-wrap: wrap; }
+  .form-header h2 { font-size: 0.88rem; font-weight: 700; color: #0f172a; margin: 0; }
+  .form-header p { font-size: 0.72rem; color: #64748b; margin: 0.15rem 0 0; }
+
+  .form-body { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.1rem; }
+
   .aviso-ia {
-    background: #e8f0fe;
-    border-left: 4px solid #0d3b6e;
-    border-radius: 4px;
-    padding: .7rem 1rem;
-    font-size: .84rem;
-    color: #0d3b6e;
-    margin-bottom: 1.5rem;
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    background: rgba(37,99,235,0.04); border: 1px solid rgba(37,99,235,0.15);
+    border-radius: 8px; padding: 0.85rem 1rem; font-size: 0.78rem; color: #1e3a5f; line-height: 1.5;
   }
+  .aviso-ia-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: rgba(37,99,235,0.1); display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+
+  .campo { display: flex; flex-direction: column; gap: 0.4rem; }
+  .campo label { font-size: 0.75rem; font-weight: 600; color: #334155; }
+  .campo label .req { color: #ef4444; margin-left: 2px; }
+  .campo .hint { font-size: 0.67rem; color: #94a3b8; }
+
+  .campo select, .campo textarea, .campo input[type="date"],
+  .campo input[type="text"] {
+    width: 100%; padding: 0.55rem 0.85rem;
+    border: 1px solid #e2e8f0; border-radius: 8px;
+    font-size: 0.82rem; font-family: inherit; color: #334155;
+    background: #f8fafc; outline: none; transition: all 0.15s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .campo select:focus, .campo textarea:focus,
+  .campo input[type="date"]:focus, .campo input[type="text"]:focus {
+    border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); background: #fff;
+  }
+  .campo textarea { resize: vertical; min-height: 130px; line-height: 1.6; }
+
+  .campo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media (max-width: 500px) { .campo-grid { grid-template-columns: 1fr; } }
+
+  .radio-group { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .radio-label {
+    display: flex; align-items: center; gap: 0.4rem;
+    font-size: 0.78rem; font-weight: 400; color: #334155; cursor: pointer;
+  }
+  .radio-label input[type="radio"] { accent-color: #2563eb; cursor: pointer; }
+
+  .form-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1rem 1.5rem; border-top: 1px solid #f1f5f9; background: #fafbfc;
+    gap: 0.75rem; flex-wrap: wrap;
+  }
+  .form-footer .required-note { font-size: 0.67rem; color: #94a3b8; }
+  .form-footer .required-note span { color: #ef4444; font-weight: 600; }
+  .footer-actions { display: flex; gap: 0.5rem; }
 </style>
 
-<div class="card">
-  <h2>Nova Reclamação</h2>
-
-  <div class="aviso-ia">
-    🤖 O agente classificador analisará automaticamente o texto e aplicará as regras da <strong>POL-SAC-001</strong>
-    para determinar categoria, urgência, sentimento e ações imediatas.
+<div class="form-wrapper">
+  <div class="form-header">
+    <div class="form-header-icon">
+      <svg width="15" height="15" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    </div>
+    <div>
+      <h2>Nova Reclamação <span style="color:#94a3b8; font-weight:400;">|</span> <span style="color:#64748b; font-weight:600;">Triagem e Entrada de Dados</span></h2>
+      <p>Insira o relato bruto do cliente para inicializar o fluxo de análise e orquestração de agentes de IA.</p>
+    </div>
   </div>
 
-  <form method="post" action="/nova">
-    <div class="campo">
-      <label for="canal">Canal de origem <span style="color:red">*</span></label>
-      <select name="canal" id="canal" required>
-        <option value="">Selecione o canal</option>
-        {% for c in canais %}
-          <option value="{{ c }}">{{ c }}</option>
-        {% endfor %}
-      </select>
-      <p class="hint">Canal pelo qual a reclamação foi recebida</p>
-    </div>
-
-    <div class="campo">
-      <label for="produto">Produto</label>
-      <select name="produto" id="produto">
-        <option value="">Não identificado</option>
-        {% for p in produtos %}
-          <option value="{{ p }}">{{ p }}</option>
-        {% endfor %}
-      </select>
-      <p class="hint">O agente também tentará identificar o produto pelo texto da reclamação</p>
-    </div>
-
-    <div class="campo">
-      <label for="texto_reclamacao">Texto da reclamação <span style="color:red">*</span></label>
-      <textarea name="texto_reclamacao" id="texto_reclamacao" required
-        placeholder="Cole ou digite aqui o texto completo da reclamação do cliente..."></textarea>
-      <p class="hint">Quanto mais detalhado, mais precisa será a classificação</p>
-    </div>
-
-    <div class="campo">
-      <label>É a primeira ocorrência?</label>
-      <div style="display:flex;gap:.8rem;margin-top:.2rem;">
-        <label style="display:flex;align-items:center;gap:.4rem;font-weight:400;cursor:pointer;">
-          <input type="radio" name="primeira_ocorrencia" value="sim" onchange="toggleData(this.value)"> Sim
-        </label>
-        <label style="display:flex;align-items:center;gap:.4rem;font-weight:400;cursor:pointer;">
-          <input type="radio" name="primeira_ocorrencia" value="nao" onchange="toggleData(this.value)"> Não
-        </label>
+  <div class="form-body">
+    <div class="aviso-ia">
+      <div class="aviso-ia-icon">
+        <svg width="13" height="13" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       </div>
+      <span>O agente classificador analisará automaticamente o texto e aplicará as regras da <strong>POL-SAC-001</strong> para determinar categoria, urgência, sentimento e ações imediatas.</span>
     </div>
 
-    <div class="campo" id="campo_data" style="display:none;">
-      <label for="data_reclamacao">Data da ocorrência</label>
-      <input type="date" name="data_reclamacao" id="data_reclamacao">
-      <p class="hint">Se não preenchida, será usada a data de hoje</p>
-    </div>
+    <form method="post" action="/nova">
+      <div style="display:flex; flex-direction:column; gap:1.1rem;">
 
-    <script>
-      function toggleData(valor) {
-        const campo = document.getElementById('campo_data');
-        const input = document.getElementById('data_reclamacao');
-        if (valor === 'sim') {
-          campo.style.display = 'none';
-          input.value = new Date().toISOString().split('T')[0];
-        } else {
-          campo.style.display = 'block';
-          input.value = '';
-        }
-      }
-    </script>
+        <div class="campo-grid">
+          <div class="campo">
+            <label for="canal">Canal de Origem <span class="req">*</span></label>
+            <select name="canal" id="canal" required>
+              <option value="">Selecione o canal</option>
+              {% for c in canais %}
+                <option value="{{ c }}">{{ c }}</option>
+              {% endfor %}
+            </select>
+            <span class="hint">Canal pelo qual a reclamação foi recebida</span>
+          </div>
 
-    <div class="acoes">
-      <button type="submit" class="btn btn-primary">Registrar e Classificar</button>
-      <a href="/" class="btn btn-secondary">Cancelar</a>
-    </div>
-  </form>
+          <div class="campo">
+            <label for="produto">Produto Envolvido</label>
+            <select name="produto" id="produto">
+              <option value="">Selecione ou deixe em branco...</option>
+              {% for p in produtos %}
+                <option value="{{ p }}">{{ p }}</option>
+              {% endfor %}
+            </select>
+            <span class="hint">Se omitido, a IA identificará o produto automaticamente a partir do texto.</span>
+          </div>
+        </div>
+
+        <div class="campo">
+          <label for="texto_reclamacao">Texto da Reclamação (Conteúdo Bruto) <span class="req">*</span></label>
+          <textarea name="texto_reclamacao" id="texto_reclamacao" required
+            placeholder="Cole ou digite aqui o texto completo da reclamação do cliente (incluindo desabafos, valores, erros de digitação ou termos informais)..."></textarea>
+          <span class="hint">Quanto mais detalhado, mais precisa será a classificação</span>
+        </div>
+
+        <div class="campo">
+          <label>É a primeira ocorrência?</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="primeira_ocorrencia" value="sim" onchange="toggleData(this.value)"> Sim
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="primeira_ocorrencia" value="nao" onchange="toggleData(this.value)"> Não
+            </label>
+          </div>
+        </div>
+
+        <div class="campo" id="campo_data" style="display:none;">
+          <label for="data_reclamacao">Data da Ocorrência</label>
+          <input type="date" name="data_reclamacao" id="data_reclamacao">
+          <span class="hint">Se não preenchida, será usada a data de hoje</span>
+        </div>
+
+      </div>
+
+      <div class="form-footer" style="margin: 1.5rem -1.5rem -1.5rem; border-radius: 0 0 12px 12px;">
+        <span class="required-note"><span>*</span> Campos obrigatórios</span>
+        <div class="footer-actions">
+          <a href="/" class="btn btn-secondary">Cancelar</a>
+          <button type="submit" class="btn btn-primary">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Registrar e Analisar com FinGuard
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
+
+<script>
+  function toggleData(valor) {
+    const campo = document.getElementById('campo_data');
+    const input = document.getElementById('data_reclamacao');
+    if (valor === 'sim') {
+      campo.style.display = 'none';
+      input.value = new Date().toISOString().split('T')[0];
+    } else {
+      campo.style.display = 'flex';
+      input.value = '';
+    }
+  }
+</script>
 {% endblock %}
