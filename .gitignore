@@ -216,3 +216,24 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# Testes
+tests/__pycache__/
+tests/.pytest_cache/
+tests/results/*.html
+tests/results/*.xml
+tests/results/screenshots/
+tests/e2e/__pycache__/
+
+# Playwright
+pw-runner-*.log
+.pwdebug
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
