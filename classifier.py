@@ -23,53 +23,19 @@ load_dotenv()
 
 SYSTEM_PROMPT = """Você é o agente classificador de reclamações da FinGuard, instituição financeira.
 Sua função é analisar reclamações de clientes e retornar uma classificação estruturada seguindo
-rigorosamente a Política Interna POL-SAC-001 v2.0.
+rigorosamente a Política Interna.
+Sua função é analisar reclamações de clientes e retornar uma classificação estruturada usando exclusivamente
+as regras da Política Interna POL-SAC-001 v2.0 fornecida no contexto.
 
-=== REGRAS DE CLASSIFICAÇÃO DE URGÊNCIA (POL-SAC-001 §2) ===
-
-URGÊNCIA CRÍTICA (prazo: até 4 horas):
-- Indícios de fraude ou acesso não autorizado
-- Menção a Banco Central, Procon, Justiça ou advogado
-- Canal de origem: Banco Central ou Procon → AUTOMATICAMENTE CRÍTICA
-- Risco à segurança do cliente
-- Vulnerabilidade emocional ou financeira extrema (ex: "única reserva", "desespero", "tirando o sono")
-Ações: contato ativo em até 2h, escalar para gerente + Compliance, acionar Prevenção a Fraudes se fraude
-
-URGÊNCIA ALTA (prazo: até 24 horas):
-- Valor financeiro acima de R$ 500
-- Múltiplas tentativas de contato sem resolução (3+ tentativas)
-- Ameaça de escalar para órgãos reguladores (sem ainda ter feito)
-Ações: contato ativo em até 4h, analista dedicado, notificar coordenador, registrar no painel gerencial
-
-URGÊNCIA MÉDIA (prazo: até 3 dias úteis):
-- Impacto financeiro moderado (até R$ 500)
-- Problemas recorrentes ou falhas de atendimento
-- Canal Ouvidoria (segunda instância)
-Ações: confirmar recebimento em 12h, analista sênior em 24h, análise de estorno se aplicável
-
-URGÊNCIA BAIXA (prazo: até 5 dias úteis):
-- Dúvidas operacionais, informações, insatisfações leves sem impacto financeiro
-Ações: registrar protocolo e enviar confirmação em 24h, fila padrão da área responsável
-
-=== REGRAS POR CANAL (POL-SAC-001 §4) ===
-- SAC: primeira instância, prazo legal 5 dias úteis
-- Ouvidoria: segunda instância, analista sênior dedicado, prazo 10 dias úteis
-- Banco Central / Procon: CRÍTICA automática, notificar Compliance em 2h, revisão jurídica
-- Redes Sociais: resposta pública em 2h, migrar para canal privado imediatamente
-
-=== RESPONSÁVEIS POR PRODUTO (POL-SAC-001 §3) ===
-- Cartão de Crédito → Gerência de Cartões
-- Conta Corrente → Gerência de Contas
-- Empréstimo → Gerência de Crédito
-- Investimentos → Gerência de Investimentos
-- Seguros → Gerência de Seguros
-- Não Identificado → Central de Atendimento
-
-=== PROTEÇÃO DE DADOS (POL-SAC-001 §5) ===
-- O resumo NÃO pode conter: CPF, número de conta, número de cartão, nome completo do cliente
-- Substituir por [DADO PESSOAL OMITIDO] se necessário
-- Ocultar palavrões ou linguagem inadequada com [CONTEÚDO OMITIDO]
-
+INSTRUÇÕES IMPORTANTES:
+- Sempre consulte a politica antes de classificar.
+- Considere o documento da política interna como a única fonte de verdade.
+- Não use conhecimento prévio, suposições ou regras externas.
+- Se uma regra ou valor não estiver explícito na política, escolha a opção mais conservadora e use o valor mais próximo disponível.
+- A resposta deve seguir estritamente o formato JSON solicitado.
+- Não invente informações que não estejam presentes na política.
+- Utilize do texto da reclamação para determinar os campos faltantes, caso um campo inserido pelo usuário como por exemplo canal de atendimento, não esteja de acordo com o texto, faça essa referencia no resumo, mas não altere o campo canal, apenas o resumo.
+- Os prazos devem ser determinados de acordo com o produto seguindo a politica interna.
 === CATEGORIAS VÁLIDAS ===
 Cobrança Indevida | Atendimento | Fraude/Segurança | Produto/Serviço | Cancelamento | Outros
 
@@ -122,11 +88,43 @@ Texto da reclamação:
         import httpx
         http_client = httpx.Client(verify=False)
         client = anthropic.Anthropic(api_key=api_key, http_client=http_client)
-        message = client.messages.create(
+
+        with open("knowledge/politica_interna.md", "rb") as f:
+            arquivo = client.beta.files.upload(
+                file=("politica_interna.md", f, "text/markdown"),
+            )
+        file_id = arquivo.id
+
+        message = client.beta.messages.create(
             model="claude-opus-4-8",
             max_tokens=1024,
             system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": prompt_usuario}],
+            betas=["files-api-2025-04-14"],
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "document",
+                            "source": {
+                                "type": "file",
+                                "file_id": file_id
+                            },
+                            "title": "politica_interna.md",
+                            "citations": {
+                                "enabled": False,
+                            },
+                            "cache_control": {
+                                "type": "ephemeral"
+                            }
+                        },
+                        {
+                            "type": "text",
+                            "text": prompt_usuario
+                        },
+                    ]
+                }
+            ],
         )
         conteudo = message.content[0].text.strip()
 
@@ -139,7 +137,10 @@ Texto da reclamação:
         resultado["resumo"] = _sanitize_resumo(resultado.get("resumo", ""))
         return resultado
 
-    except (anthropic.APIError, json.JSONDecodeError, KeyError):
+    except Exception as e:
+        import traceback
+        print("ERRO ao classificar via API Claude:", e)
+        traceback.print_exc()
         return _classificar_fallback(texto_reclamacao, canal, produto, multiplas_ocorrencias)
 
 
