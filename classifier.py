@@ -64,8 +64,9 @@ def _sanitize_resumo(texto: str) -> str:
     texto = re.sub(r"\b\d{10,}\b", "[DADO PESSOAL OMITIDO]", texto)
     return texto
 
+ 
 
-def classificar(texto_reclamacao: str, canal: str, produto: Optional[str] = None, multiplas_ocorrencias: bool = False) -> dict:
+def classificar(texto_reclamacao: str, canal: str, produto: Optional[str] = None, multiplas_ocorrencias: bool = False, contexto: str = "") -> dict:
     """
     Classifica uma reclamação usando a Claude API, seguindo as regras da POL-SAC-001.
 
@@ -76,12 +77,14 @@ def classificar(texto_reclamacao: str, canal: str, produto: Optional[str] = None
     prompt_usuario = f"""Canal de origem: {canal}
 Produto informado pelo cliente: {produto or "Não informado"}
 Múltiplas ocorrências relatadas pelo cliente: {"Sim — o cliente informou que já ocorreu mais de uma vez" if multiplas_ocorrencias else "Não informado"}
-
+Contexto relevante:
+{contexto}
 Texto da reclamação:
 {texto_reclamacao}"""
 
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
+        print("ANTHROPIC_API_KEY não configurada. Usando fallback local.")
         return _classificar_fallback(texto_reclamacao, canal, produto, multiplas_ocorrencias)
 
     try:
@@ -89,45 +92,21 @@ Texto da reclamação:
         http_client = httpx.Client(verify=False)
         client = anthropic.Anthropic(api_key=api_key, http_client=http_client)
 
-        with open("knowledge/politica_interna.md", "rb") as f:
-            arquivo = client.beta.files.upload(
-                file=("politica_interna.md", f, "text/markdown"),
-            )
-        file_id = arquivo.id
 
-        message = client.beta.messages.create(
+        message = client.messages.create(
             model="claude-opus-4-8",
             max_tokens=1024,
             system=SYSTEM_PROMPT,
-            betas=["files-api-2025-04-14"],
             messages=[
                 {
                     "role": "user",
-                    "content": [
-                        {
-                            "type": "document",
-                            "source": {
-                                "type": "file",
-                                "file_id": file_id
-                            },
-                            "title": "politica_interna.md",
-                            "citations": {
-                                "enabled": False,
-                            },
-                            "cache_control": {
-                                "type": "ephemeral"
-                            }
-                        },
-                        {
-                            "type": "text",
-                            "text": prompt_usuario
-                        },
-                    ]
+                    "content": prompt_usuario
                 }
             ],
         )
         conteudo = message.content[0].text.strip()
 
+        print ("Resposta da API Claude:", conteudo)  # Log para depuração
         # Remove blocos markdown se o modelo os incluir
         if conteudo.startswith("```"):
             conteudo = re.sub(r"^```(?:json)?\n?", "", conteudo)

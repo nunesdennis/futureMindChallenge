@@ -1,4 +1,8 @@
 import os
+import json
+import numpy as np
+import voyageai
+
 from datetime import date
 
 from dotenv import load_dotenv
@@ -8,7 +12,11 @@ from sqlalchemy import func
 from classifier import classificar
 from models import Reclamacao, db
 
+
 load_dotenv()
+vo = voyageai.Client()
+
+
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///finguard.db"
@@ -75,8 +83,59 @@ def index():
     )
 
 
+#chunking
+def chunk_markdown(path: str, size: int = 500) -> list[str]:
+    """Divide o conteúdo do arquivo markdown em blocos menores para envio à API."""
+    with open(path, "r", encoding="utf-8") as f:
+        texto = f.read()
+    paragraphs = texto.split("\n\n")
+    chunks, atual = [], ""
+    for p in paragraphs:
+        p = p.strip()
+        if not p:
+            continue
+        if len(atual) + len(p) < size:
+            atual += p + "\n\n"
+        else:
+            if atual:
+                chunks.append(atual.strip())
+            atual = p + "\n\n"
+    if atual:
+        chunks.append(atual.strip())
+    return chunks
+
+#index
+def construir_ou_carregar_indice() -> tuple[list[str], np.ndarray]:
+    index_path = "knowledge/politica_interna_index.json"
+    if os.path.exists(index_path):
+        try:
+            with open(index_path, "r", encoding="utf-8") as f:
+                dados = json.load(f)
+            return dados["chunks"], np.array(dados["embeddings"])
+        except (json.JSONDecodeError, ValueError):
+            # Arquivo corrompido ou vazio: forçar reindexação
+            os.remove(index_path)
+
+    chunks = chunk_markdown("knowledge/politica_interna.md", size=500)
+    result = vo.embed(chunks, model="voyage-4-large", input_type="document")
+    embeddings = np.array(result.embeddings)
+    os.makedirs(os.path.dirname(index_path), exist_ok=True)
+    with open(index_path, "w", encoding="utf-8") as f:
+        json.dump({"chunks": chunks, "embeddings": embeddings.tolist()}, f)
+    return chunks, embeddings
+
+#retrieval
+def retrieval_chunks(question: str, chunks: list[str], embeddings: np.ndarray, top_k: int = 3) -> list[str]:
+    result = vo.embed([question], model="voyage-4-large", input_type="query")
+    emb_question = np.array(result.embeddings[0])
+    similarResults = embeddings @ emb_question / (np.linalg.norm(embeddings, axis=1) * np.linalg.norm(emb_question))
+    top_index = np.argsort(similarResults)[::-1][:top_k]
+    return [chunks[i] for i in top_index]
+
 @app.route("/nova", methods=["GET", "POST"])
 def nova():
+    chunks, embeddings = construir_ou_carregar_indice()
+    
     if request.method == "POST":
         canal = request.form.get("canal", "").strip()
         produto = request.form.get("produto", "").strip()
@@ -104,9 +163,12 @@ def nova():
         db.session.flush()
 
         multiplas_ocorrencias = request.form.get("primeira_ocorrencia") == "nao"
+        contexto_relevante = retrieval_chunks(texto, chunks, embeddings)
+        contexto_texto = "\n\n".join(contexto_relevante)
+        print(contexto_texto)  # Debug: print the context to verify it's being retrieved correctly
 
         try:
-            resultado = classificar(texto, canal, produto or None, multiplas_ocorrencias=multiplas_ocorrencias)
+            resultado = classificar(texto, canal, produto or None, multiplas_ocorrencias=multiplas_ocorrencias, contexto=contexto_texto)
             rec.categoria = resultado.get("categoria")
             rec.sentimento = resultado.get("sentimento")
             rec.urgencia = resultado.get("urgencia")
