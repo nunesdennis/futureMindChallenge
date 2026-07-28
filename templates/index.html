@@ -32,8 +32,8 @@
 
   .filtros-container {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
     align-items: flex-end;
     margin-bottom: 1rem;
   }
@@ -86,13 +86,15 @@
   .table-container {
     background: #fff;
     border-radius: 10px;
-    overflow: hidden;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: 0 2px 8px rgba(0,0,0,.06);
     border: 1px solid #f0f2f5;
   }
 
   table {
     width: 100%;
+    min-width: 700px;
     border-collapse: collapse;
     background: #fff;
   }
@@ -103,9 +105,9 @@
   }
 
   th {
-    padding: 1rem 1.2rem;
+    padding: 1rem 1rem;
     text-align: left;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     font-weight: 600;
     white-space: nowrap;
     text-transform: uppercase;
@@ -113,8 +115,8 @@
   }
 
   td {
-    padding: 0.95rem 1.2rem;
-    font-size: 0.9rem;
+    padding: 0.85rem 1rem;
+    font-size: 0.88rem;
     border-bottom: 1px solid #f0f2f5;
     vertical-align: middle;
   }
@@ -131,72 +133,45 @@
     border-bottom: none;
   }
 
-  .texto-truncado {
-    max-width: 300px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .texto-resumo {
+    min-width: 200px;
+    max-width: 320px;
+    max-height: 80px;
+    overflow-y: scroll;
     color: #555;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.5;
+    padding-right: 4px;
   }
 
-  .acoes-cell {
+  .texto-resumo::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .texto-resumo::-webkit-scrollbar-track {
+    background: #f0f2f5;
+    border-radius: 3px;
+  }
+
+  .texto-resumo::-webkit-scrollbar-thumb {
+    background: #b0bac5;
+    border-radius: 3px;
+  }
+
+  .texto-resumo::-webkit-scrollbar-thumb:hover {
+    background: #0d3b6e;
+  }
+
+  .acoes-col {
     display: flex;
-    gap: 0.6rem;
-    white-space: nowrap;
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
   }
 
-  .acoes-cell .btn {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 6px;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 3px 10px rgba(0,0,0,.12);
-  }
-
-  .acoes-cell .btn:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 6px 15px rgba(0,0,0,.2);
-  }
-
-  .acoes-cell form {
-    margin: 0 !important;
-  }
-
-  .acoes-cell form button {
-    padding: 0.4rem 0.75rem;
-    font-size: 0.75rem;
-    font-weight: 600;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: 0 3px 10px rgba(0,0,0,.12);
-  }
-
-  .acoes-cell form button:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 6px 15px rgba(0,0,0,.2);
-  }
-
-  .acoes-cell .btn-primary {
-    background: #1a5a9f;
-    color: #fff;
-  }
-
-  .acoes-cell .btn-primary:hover {
-    background: #164a7f;
-    box-shadow: 0 6px 15px rgba(26, 90, 159, .3) !important;
-  }
-
-  .acoes-cell .btn-danger {
-    background: #d94a54;
-    color: #fff;
-  }
-
-  .acoes-cell .btn-danger:hover {
-    background: #c23a44;
-    box-shadow: 0 6px 15px rgba(217, 74, 84, .3) !important;
+  .acoes-col form {
+    margin: 0;
   }
 
   .paginacao {
@@ -240,6 +215,20 @@
   .empty-state p {
     font-size: 1rem;
     margin: 0;
+  }
+
+  @media (max-width: 600px) {
+    .filtros { padding: 1rem; }
+    .filtros-container { grid-template-columns: 1fr; gap: 0.75rem; }
+    .filtros-botoes { flex-direction: column; }
+    .filtros-botoes .btn { width: 100%; text-align: center; }
+
+    .header-section h2 { font-size: 1.2rem; }
+
+    .paginacao { flex-wrap: wrap; gap: 0.4rem; }
+    .paginacao a, .paginacao span { padding: 0.4rem 0.7rem; font-size: 0.8rem; }
+
+    td, th { padding: 0.7rem 0.6rem; font-size: 0.82rem; }
   }
 
 </style>
@@ -304,7 +293,7 @@
         <th>Urgência</th>
         <th>Sentimento</th>
         <th>Status</th>
-        <th>Reclamação</th>
+        <th>Resumo</th>
         <th>Ações</th>
       </tr>
     </thead>
@@ -332,12 +321,14 @@
           {% set stcls = {"Aberta":"aberta","Em análise":"analise","Resolvida":"resolvida"} %}
           <span class="badge badge-{{ stcls.get(r.status,'neutro') }}">{{ r.status }}</span>
         </td>
-        <td class="texto-truncado" title="{{ r.texto_reclamacao }}">{{ r.texto_reclamacao }}</td>
-        <td class="acoes-cell">
-          <a href="/reclamacao/{{ r.id }}" class="btn btn-primary btn-sm">Ver</a>
-          <form method="post" action="/reclamacao/{{ r.id }}/apagar" onsubmit="return confirm('Apagar {{ r.id }}?')">
-            <button type="submit" class="btn btn-danger btn-sm">Apagar</button>
-          </form>
+        <td class="texto-resumo">{{ r.resumo or r.texto_reclamacao }}</td>
+        <td>
+          <div class="acoes-col">
+            <a href="/reclamacao/{{ r.id }}" class="btn btn-primary btn-sm">Ver</a>
+            <form method="post" action="/reclamacao/{{ r.id }}/apagar" onsubmit="return confirm('Apagar reclamação {{ r.id }}?')">
+              <button type="submit" class="btn btn-danger btn-sm">Deletar</button>
+            </form>
+          </div>
         </td>
       </tr>
       {% endfor %}

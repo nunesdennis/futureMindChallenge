@@ -3,6 +3,7 @@ from datetime import date
 
 from dotenv import load_dotenv
 from flask import Flask, flash, redirect, render_template, request, url_for
+from sqlalchemy import func
 
 from classifier import classificar
 from models import Reclamacao, db
@@ -147,6 +148,85 @@ def atualizar_status(rec_id):
         db.session.commit()
         flash("Status atualizado.", "sucesso")
     return redirect(url_for("detalhe", rec_id=rec_id))
+
+
+@app.route("/dashboard")
+def dashboard():
+    total = Reclamacao.query.count()
+
+    criticas = Reclamacao.query.filter(Reclamacao.urgencia == "Crítica").count()
+
+    sla_risco = Reclamacao.query.filter(
+        Reclamacao.urgencia.in_(["Crítica", "Alta"]),
+        Reclamacao.status == "Aberta",
+    ).count()
+
+    resolvidas = Reclamacao.query.filter(Reclamacao.status == "Resolvida").count()
+    taxa_resolucao = round((resolvidas / total * 100) if total else 0)
+
+    por_canal = (
+        db.session.query(Reclamacao.canal, func.count(Reclamacao.id))
+        .group_by(Reclamacao.canal)
+        .all()
+    )
+    canal_labels = [r[0] for r in por_canal]
+    canal_valores = [r[1] for r in por_canal]
+
+    por_produto = (
+        db.session.query(Reclamacao.produto, func.count(Reclamacao.id))
+        .filter(Reclamacao.produto.isnot(None))
+        .group_by(Reclamacao.produto)
+        .order_by(func.count(Reclamacao.id).desc())
+        .limit(3)
+        .all()
+    )
+    produto_labels = [r[0] for r in por_produto]
+    produto_valores = [r[1] for r in por_produto]
+
+    pendentes = (
+        Reclamacao.query.filter(Reclamacao.status.in_(["Aberta", "Em análise"]))
+        .order_by(Reclamacao.urgencia.desc(), Reclamacao.data_reclamacao.asc())
+        .limit(10)
+        .all()
+    )
+
+    urgencia_pct_critica = (
+        db.session.query(func.count(Reclamacao.id))
+        .filter(Reclamacao.urgencia == "Crítica")
+        .scalar() or 0
+    )
+    urgencia_pct_alta = (
+        db.session.query(func.count(Reclamacao.id))
+        .filter(Reclamacao.urgencia == "Alta")
+        .scalar() or 0
+    )
+    urgencia_pct_media = (
+        db.session.query(func.count(Reclamacao.id))
+        .filter(Reclamacao.urgencia == "Média")
+        .scalar() or 0
+    )
+    urgencia_pct_baixa = (
+        db.session.query(func.count(Reclamacao.id))
+        .filter(Reclamacao.urgencia == "Baixa")
+        .scalar() or 0
+    )
+
+    return render_template(
+        "dashboard.html",
+        total=total,
+        criticas=criticas,
+        sla_risco=sla_risco,
+        taxa_resolucao=taxa_resolucao,
+        canal_labels=canal_labels,
+        canal_valores=canal_valores,
+        produto_labels=produto_labels,
+        produto_valores=produto_valores,
+        pendentes=pendentes,
+        urgencia_critica=urgencia_pct_critica,
+        urgencia_alta=urgencia_pct_alta,
+        urgencia_media=urgencia_pct_media,
+        urgencia_baixa=urgencia_pct_baixa,
+    )
 
 
 with app.app_context():

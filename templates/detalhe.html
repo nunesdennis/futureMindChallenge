@@ -57,14 +57,24 @@
   }
 
 
-  .status-form { display: flex; gap: .6rem; align-items: center; margin-top: 1rem; }
-  .status-form select { padding: .45rem .8rem; border: 1px solid #ddd; border-radius: 6px; font-size: .88rem; transition: border-color .2s; }
+  .status-form { display: flex; gap: .6rem; align-items: center; margin-top: 1rem; flex-wrap: wrap; }
+  .status-form select { padding: .45rem .8rem; border: 1px solid #ddd; border-radius: 6px; font-size: .88rem; transition: border-color .2s; flex: 1; min-width: 140px; }
   .status-form select:focus { outline: none; border-color: #0d3b6e; box-shadow: 0 0 0 3px rgba(13,59,110,.1); }
+
+  .detalhe-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
+
+  @media (max-width: 600px) {
+    .card { padding: 1.1rem; }
+    .campo-row { flex-direction: column; gap: 0.2rem; }
+    .campo-row .valor { text-align: left; }
+    .detalhe-header { flex-direction: column; }
+    .critica-box { font-size: .82rem; margin: 0; }
+  }
 </style>
 
 <a href="/" class="voltar">← Voltar para a lista</a>
 
-<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+<div class="detalhe-header">
   <div>
     <h2 style="font-size:1.1rem; color:#0d3b6e;">{{ rec.id }}</h2>
     <span style="font-size:.82rem; color:#888;">Registrada em {{ rec.data_reclamacao.strftime('%d/%m/%Y') if rec.data_reclamacao else '—' }}</span>
