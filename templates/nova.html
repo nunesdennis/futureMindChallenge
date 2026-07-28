@@ -3,7 +3,12 @@
 
 {% block conteudo %}
 <style>
-  .card { background: #fff; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 6px rgba(0,0,0,.1); max-width: 760px; }
+  .card { background: #fff; border-radius: 8px; padding: 2rem; box-shadow: 0 1px 6px rgba(0,0,0,.1); max-width: 760px; width: 100%; }
+  @media (max-width: 600px) {
+    .card { padding: 1.2rem; border-radius: 6px; }
+    .acoes { flex-direction: column; }
+    .acoes .btn { width: 100%; text-align: center; }
+  }
   .card h2 { font-size: 1.15rem; color: #0d3b6e; margin-bottom: 1.5rem; }
   .campo { margin-bottom: 1.2rem; }
   .campo label { display: block; font-size: .88rem; font-weight: 600; color: #444; margin-bottom: .4rem; }
